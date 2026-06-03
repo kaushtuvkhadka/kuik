@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/KUik">
+    <file alias="qmldir">/home/aryan/KUik_GUI/b/KUik/qmldir</file>
+  </qresource>
+</RCC>
+

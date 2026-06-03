@@ -1,0 +1,18 @@
+# Build directory
+build/
+
+# Qt Creator user files
+*.user
+*.user.*
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+
+# Compiled files
+*.o
+*.a
+*.so
+
+# IDE files
+.qtc_clangd/

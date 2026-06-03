@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="/qt/qml/KUik/">
+    <file alias="qml/Main.qml">/home/aryan/KUik_GUI/qml/Main.qml</file>
+    <file alias="qml/pages/HomePage.qml">/home/aryan/KUik_GUI/qml/pages/HomePage.qml</file>
+    <file alias="qml/pages/DetailPage.qml">/home/aryan/KUik_GUI/qml/pages/DetailPage.qml</file>
+    <file alias="qml/pages/PlayerPage.qml">/home/aryan/KUik_GUI/qml/pages/PlayerPage.qml</file>
+    <file alias="qml/components/NavBar.qml">/home/aryan/KUik_GUI/qml/components/NavBar.qml</file>
+    <file alias="qml/components/MovieCard.qml">/home/aryan/KUik_GUI/qml/components/MovieCard.qml</file>
+    <file alias="qml/components/SearchBar.qml">/home/aryan/KUik_GUI/qml/components/SearchBar.qml</file>
+    <file alias="qml/components/VideoControls.qml">/home/aryan/KUik_GUI/qml/components/VideoControls.qml</file>
+  </qresource>
+</RCC>
+

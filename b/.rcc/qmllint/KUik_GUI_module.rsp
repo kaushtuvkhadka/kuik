@@ -1,0 +1,16 @@
+-I
+/home/aryan/KUik_GUI/b
+-I
+/home/aryan/KUik_GUI/b/KUik
+-I
+/home/aryan/KUik_GUI/b
+-I
+/usr/lib/qt6/qml
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/qmake_KUik.qrc
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0.qrc
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0_extra_qmldirs.qrc
+--module
+KUik

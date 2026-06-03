@@ -1,0 +1,14 @@
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/qmake_KUik.qrc
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0.qrc
+--resource
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0_extra_qmldirs.qrc
+/qt/qml/KUik/qml/Main.qml
+/qt/qml/KUik/qml/pages/HomePage.qml
+/qt/qml/KUik/qml/pages/DetailPage.qml
+/qt/qml/KUik/qml/pages/PlayerPage.qml
+/qt/qml/KUik/qml/components/NavBar.qml
+/qt/qml/KUik/qml/components/MovieCard.qml
+/qt/qml/KUik/qml/components/SearchBar.qml
+/qt/qml/KUik/qml/components/VideoControls.qml

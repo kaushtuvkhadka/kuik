@@ -1,0 +1,15 @@
+-rootPath
+/home/aryan/KUik_GUI
+-cmake-output
+-output-file
+/home/aryan/KUik_GUI/b/.qt/qml_imports/KUik_GUI_build.cmake
+-importPath
+/home/aryan/KUik_GUI/b
+-importPath
+/home/aryan/KUik_GUI/b/KUik
+-importPath
+/usr/lib/qt6/qml
+-qrcFiles
+/home/aryan/KUik_GUI/b/.qt/rcc/qmake_KUik.qrc
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0.qrc
+/home/aryan/KUik_GUI/b/.qt/rcc/KUik_GUI_raw_qml_0_extra_qmldirs.qrc
