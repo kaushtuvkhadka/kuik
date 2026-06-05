@@ -372,7 +372,8 @@ Rectangle {
 
                         MouseArea {
                             id: fullscreen_area
-                            anchors.fill: parent
+                            width: parent.width
+                            height: parent.height
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {

@@ -19,6 +19,7 @@ Rectangle {
     property string poster_url: ""          // poster image URL
     property string video_url: ""           // video URL of the movie
     property var similar_movies: []         // Array becasue there will be many similar movies and only one movie in detail
+    property string movie_identifier: ""
 
     // Lay out of details Page
     // Column stacks every component vertically top to bottom
@@ -131,17 +132,16 @@ Rectangle {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
+                                console.log("watch clicked")
                                 if (detailPage.appStack) {
+                                    var videoUrl = InternetArchive.getVideoUrl(detailPage.movie_identifier) // hardcoded for now
                                     detailPage.appStack.push(
                                         "qrc:/qt/qml/KUik/qml/pages/PlayerPage.qml",
                                         {
-                                            video_url: detailPage.video_url,
+                                            video_url: videoUrl,
                                             appStack:  detailPage.appStack
                                         }
                                     )
-                                    console.log("clicked watch button")
-                                    InternetArchive.fetch(detailPage.movie_title)
-
                                 }
                             }
                         }

@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QtCore/QUrl>
-#include <QQmlContext>          // ✅ add this
+#include <QQmlContext>
 #include "InternetArchive.h"
 
 int main(int argc, char *argv[])
@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    InternetArchive api;        // ✅ create the object
-    engine.rootContext()->setContextProperty("InternetArchive", &api);  // ✅ expose to QML
+    InternetArchive api;
+    engine.rootContext()->setContextProperty("InternetArchive", &api);  //  expose to QML
 
     const QUrl url(QStringLiteral("qrc:/qt/qml/KUik/qml/Main.qml"));
     QObject::connect(
