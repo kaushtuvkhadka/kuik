@@ -1,31 +1,32 @@
 import QtQuick
 import QtQuick.Controls
 
-ApplicationWindow {     // proper app window with menu bar, status bar support
-    id: root    // gives this element a same so other element can refer to it
+ApplicationWindow {
+    id: root
     width: 1280
     height: 720
-    minimumWidth: 1024  // prevents user resizing window too small
+    minimumWidth: 1024
     minimumHeight: 600
-    visibility: Window.Maximized  // opens maximized on any screen size
+    visibility: Window.Maximized
     visible: true
     title: "KUik"
-    color: "#0f0f0f"    //dark background
+    color: "#0f0f0f"
 
-    StackView {     // navigation stack. This is how we navigate between HomePage, DetailPage and PlayerPage
+    StackView {
         id: stackView
-        anchors.fill: parent    // fills the entire windows
-        initialItem: homePageComponent  // first page to show, for us it is HomePage
+        anchors.fill: parent
+        initialItem: homePageComponent
     }
 
     Component {
-            id: homePageComponent
-            Loader {
-                anchors.fill: parent
-                source: "qrc:/qt/qml/KUik/qml/pages/HomePage.qml"
-                onLoaded: item.appStack = stackView     // to pass stack view into Homepage
+        id: homePageComponent
+        Loader {
+            anchors.fill: parent
+            source: "qrc:/qt/qml/KUik/qml/pages/HomePage.qml"
+            onLoaded: {
+                console.log("Loaded:", item)        // ✅ debug
+                item.appStack = stackView           // sets appStack on HomePage directly
             }
+        }
     }
 }
-
-

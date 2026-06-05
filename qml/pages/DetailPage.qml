@@ -132,13 +132,16 @@ Rectangle {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 if (detailPage.appStack) {
-                                    var component = Qt.createComponent(
-                                        "qrc:/qt/qml/KUik/qml/pages/PlayerPage.qml")
-                                    var page = component.createObject(null, {
-                                        video_url: detailPage.video_url,
-                                        appStack: detailPage.appStack
-                                    })
-                                    detailPage.appStack.push(page)
+                                    detailPage.appStack.push(
+                                        "qrc:/qt/qml/KUik/qml/pages/PlayerPage.qml",
+                                        {
+                                            video_url: detailPage.video_url,
+                                            appStack:  detailPage.appStack
+                                        }
+                                    )
+                                    console.log("clicked watch button")
+                                    InternetArchive.fetch(detailPage.movie_title)
+
                                 }
                             }
                         }

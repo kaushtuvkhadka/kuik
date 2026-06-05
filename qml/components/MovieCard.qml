@@ -17,6 +17,7 @@ Rectangle {     //Base rectangle for movie card
 
     signal cardClicked()    // signal fires event to whoever is using this card
 
+
     // Poster Area
     Rectangle {
         id: poster_area
@@ -87,7 +88,7 @@ Rectangle {     //Base rectangle for movie card
         width: 3    // thin strip at left edge
         height: parent.height
         color: "#e50914"    //Netflix red accent
-        opacity: hover_area.contaionsMouse ? 1:0    //fully visible on Hover
+        opacity: hover_area.containsMouse ? 1:0    //fully visible on Hover
 
         Behavior on opacity {
             NumberAnimation {

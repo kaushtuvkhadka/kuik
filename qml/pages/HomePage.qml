@@ -16,7 +16,10 @@ Rectangle {
     // TODO: Backend team fills these from API
     // Expected object format: { title: string, year: string, genre: string, rating: real, poster_url: string }
 
-    property var recommendations: []
+    property var recommendations: [
+        { title: "The Kid", year: "1921", genre: "Comedy", rating: 8.3, poster_url: "", description: "A tramp raises an abandoned child.", video_url: "" }
+    ]
+
     property var top_picks: []
 
     // Main layout
@@ -99,20 +102,21 @@ Rectangle {
                                     }
                                 }*/
                                 onCardClicked: {
+                                    console.log("card clicked, appStack:", homePage.appStack)
                                     if (homePage.appStack) {
-                                        var component = Qt.createComponent(
-                                            "qrc:/qt/qml/KUik/qml/pages/DetailPage.qml")
-                                        var page = component.createObject(null, {
-                                            movie_title: modelData.title,
-                                            movie_year: modelData.year,
-                                            movie_genre: modelData.genre,
-                                            movie_rating: modelData.rating,
-                                            movie_description: modelData.description,
-                                            poster_url: modelData.poster_url,
-                                            video_url: modelData.video_url,
-                                            appStack: homePage.appStack
-                                        })
-                                        homePage.appStack.push(page)
+                                        homePage.appStack.push(
+                                            "qrc:/qt/qml/KUik/qml/pages/DetailPage.qml",
+                                            {
+                                                movie_title:       modelData.title,
+                                                movie_year:        modelData.year,
+                                                movie_genre:       modelData.genre,
+                                                movie_rating:      modelData.rating,
+                                                movie_description: modelData.description,
+                                                poster_url:        modelData.poster_url,
+                                                video_url:         modelData.video_url,
+                                                appStack:          homePage.appStack
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -162,7 +166,7 @@ Rectangle {
                                 }*/
                                 onCardClicked: {
                                     if (homePage.appStack) {
-                                        var component = Qt.createComponent(
+                                        var component = Qt.appStack.push(
                                             "qrc:/qt/qml/KUik/qml/pages/DetailPage.qml")
                                         var page = component.createObject(null, {
                                             movie_title: modelData.title,

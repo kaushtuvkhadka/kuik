@@ -40,6 +40,8 @@ qt_add_qml_module(KUik_GUI
         qml/components/MovieCard.qml
         qml/components/SearchBar.qml
         qml/components/VideoControls.qml
+        SOURCES src/InternetArchive.cpp
+        SOURCES src/InternetArchive.h
 )
 
 # find_package : finds Qt modules found earlier

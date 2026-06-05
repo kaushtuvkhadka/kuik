@@ -1,28 +1,28 @@
-#include <QGuiApplication> // Handles event loops - keeps app running and listening for windows even, mouse clicks, etc
-#include <QQmlApplicationEngine> // Bridge between c++ code and QML files
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <QtCore/QUrl>
-int main(int argc, char *argv[])  // argc and argv are command line arguments qt needs them passed in
+#include <QQmlContext>          // ✅ add this
+#include "InternetArchive.h"
+
+int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv); // creates application object. Passes commmand line args to Qt so it handle things like --playform flags.
+    QGuiApplication app(argc, argv);
+    app.setApplicationName("KUik");
+    app.setApplicationVersion("1.0");
 
-    app.setApplicationName("KUik"); // Sets app name
-    app.setApplicationVersion("1.0");  // Sets version name
+    QQmlApplicationEngine engine;
 
-    QQmlApplicationEngine engine;   // Creates QML engine that will load and run your Main.qml file
+    InternetArchive api;        // ✅ create the object
+    engine.rootContext()->setContextProperty("InternetArchive", &api);  // ✅ expose to QML
 
-    const QUrl url(QStringLiteral("qrc:/qt/qml/KUik/qml/Main.qml"));   // URL pointsing to Main.qml. qrc: means "look inside the bundled resources not the whole disk"
-    // QStringLiteral(u"...") is way to create Qt string. u (UTF-16), QStringLiteral(converts the url to QString)
-
-    QObject::connect (      // Qt's signal system. Error handeler which says if QML engine fails to create the windows, call this function and exit with code -1
+    const QUrl url(QStringLiteral("qrc:/qt/qml/KUik/qml/Main.qml"));
+    QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
         &app,
-        []() { QCoreApplication::exit(-1); },   // [](){...} :  An anonymous function defined right here (inline)
+        []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection
-    );
-
-    engine.load(url); // Actually loads and runs Main.qml. This is the moment your windows appears
-    return app.exec(); // Starts the event loop. The app now stays here, waiting for users input. When they close it, exec() returns and program exits cleanly
+        );
+    engine.load(url);
+    return app.exec();
 }
-
-//cmake -S /home/aryan/KUik_GUI -B /home/aryan/KUik_GUI/build/Desktop-Debug : for building in terminal
