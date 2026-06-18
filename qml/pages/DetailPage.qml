@@ -27,12 +27,8 @@ Rectangle {
 
 
 
-
-
-
-
     function getGenre(movie) {
-        return (movie.genre || movie.subject || "")             //genre find
+        return (movie.genre || movie.subject || "").toLowerCase()             //genre find
     }
 
 
@@ -51,7 +47,7 @@ Rectangle {
             var filtered = []
 
 
-            //kai ota similar movie haru fetch garne
+            //kati ota similar movie haru fetch garne
             for (var i = 0; i < movies.length && filtered.length < 4; i++) {
 
          /*       if (movies[i].identifier !== detailPage.movie_identifier){      //view garirako movie fetch bhayo bhbane ignore hunxa
@@ -64,7 +60,7 @@ Rectangle {
 
                 //genre same check garne
                 if (movies[i].identifier !== detailPage.movie_identifier) {
-                            if (getGenre(movies[i]) === movie_genre) {
+                            if (getGenre(movies[i]) === movie_genre.toLowerCase()) {
                                 console.log("     Movie: ", movies[i].title, "\n\tUrl: ", movies[i].video_url,"\n\tGenre: ", movies[i].genre);
                                 filtered.push(movies[i])
                             }
