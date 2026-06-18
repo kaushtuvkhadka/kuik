@@ -1,0 +1,389 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import "../components"
+
+Rectangle {
+    id: detailPage
+    color: "#0f0f0f"
+
+    property var    appStack:          null
+    property string movie_title:       ""
+    property string movie_year:        ""
+    property string movie_genre:       ""
+    property string movie_rating:      ""
+    property string movie_description: ""
+    property string poster_url:        ""
+    property string video_url:         ""
+    property string movie_identifier:  ""
+
+
+
+    // Similar movies ko lagi
+    property var    similar_movies:    []
+    property bool   loadingSimilar:    false                //search bhairako bela true hunxa, tala define xa
+    property bool   expectingSimilar: false
+
+
+
+
+
+
+
+
+    function getGenre(movie) {
+        return (movie.genre || movie.subject || "")             //genre find
+    }
+
+
+
+    Connections {
+        target: archiveApi                     //kun signal lai sunne/respond garne herne
+
+        enabled: detailPage.expectingSimilar        //expectingSimilar property true huda matra signal  run hunxa, by default false hunxa
+
+
+        function onSearchResultsReady(movies) {
+            detailPage.expectingSimilar = false
+            detailPage.loadingSimilar   = false
+
+            //similar movie fetch basne
+            var filtered = []
+
+
+            //kai ota similar movie haru fetch garne
+            for (var i = 0; i < movies.length && filtered.length < 4; i++) {
+
+         /*       if (movies[i].identifier !== detailPage.movie_identifier){      //view garirako movie fetch bhayo bhbane ignore hunxa
+
+                    console.log("Movie: ", movies[i].title, "\nUrl: ", movies[i].video_url);
+                    //console.log(JSON.stringify(movies[i]))
+                    filtered.push(movies[i])
+                }                               */
+
+
+                //genre same check garne
+                if (movies[i].identifier !== detailPage.movie_identifier) {
+                            if (getGenre(movies[i]) === movie_genre) {
+                                console.log("     Movie: ", movies[i].title, "\n\tUrl: ", movies[i].video_url,"\n\tGenre: ", movies[i].genre);
+                                filtered.push(movies[i])
+                            }
+                        }
+            }
+            detailPage.similar_movies = filtered                //similar movies ma save hunxa filtered movie list
+        }
+    }
+
+
+    //similar movie fetch garne func, initiate garne
+    function fetchSimilar() {
+        if (movie_genre === "")                         //movie ko genre xaina bhane end garxa process fetching ko
+            return
+
+        //genre xa bhane yo hunxa
+        expectingSimilar = true
+        loadingSimilar   = true
+        //genre anushar search
+        archiveApi.search(movie_genre)
+    }
+
+    function openPlayer() {
+        if (!detailPage.appStack || video_url === "") return
+        var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/PlayerPage.qml")
+        var p = c.createObject(null, {
+            video_url:   detailPage.video_url,
+            movie_title: detailPage.movie_title,
+            appStack:    detailPage.appStack
+        })
+        detailPage.appStack.push(p)
+    }
+
+    function openDetail(movie) {
+        if (!detailPage.appStack) return
+        var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/DetailPage.qml")
+        var p = c.createObject(null, {
+            movie_title:       movie.title       || "",
+            movie_year:        movie.year        || "",
+            movie_genre:       movie.genre       || "",
+            movie_rating:      movie.rating      || "0",
+            movie_description: movie.description || "",
+            poster_url:        movie.poster_url  || "",
+            video_url:         movie.video_url   || "",
+            movie_identifier:  movie.identifier  || "",
+            appStack:          detailPage.appStack
+        })
+        detailPage.appStack.push(p)
+    }
+
+    Component.onCompleted: {
+        fetchSimilar()
+    }
+
+    Column {
+        anchors.fill: parent
+        spacing: 0
+
+        NavBar {
+            id: nav_bar
+            width: parent.width
+            onSearchRequested: function(query) {
+                if (!detailPage.appStack) return
+                var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/SearchPage.qml")
+                var p = c.createObject(null, { appStack: detailPage.appStack, initialQuery: query })
+                detailPage.appStack.push(p)
+            }
+        }
+
+        ScrollView {
+            width: parent.width
+            height: detailPage.height - nav_bar.height
+            contentWidth: availableWidth
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+            Column {
+                width: parent.width
+                spacing: 0
+
+                // ── Hero section ───────────────────────────────────────
+                Rectangle {
+                    id: hero_section
+                    width: parent.width
+                    height: 440
+                    color: "#1a1a1a"
+
+                    Image {
+                        anchors.fill: parent
+                        source: detailPage.poster_url           //url aauxa ani poster fetch
+                        fillMode: Image.PreserveAspectCrop
+                        opacity: 0.5
+                        visible: detailPage.poster_url !== ""
+                    }
+
+                    // Gradient overlay — bottom fade
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width
+                        height: 260
+                        gradient: Gradient {
+                            orientation: Gradient.Vertical
+                            GradientStop { position: 0.0; color: "transparent" }
+                            GradientStop { position: 1.0; color: "#0f0f0f" }
+                        }
+                    }
+
+                    // Left gradient for readability
+                    Rectangle {
+                        anchors.left: parent.left
+                        width: parent.width * 0.6
+                        height: parent.height
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: "#99000000" }
+                            GradientStop { position: 1.0; color: "transparent" }
+                        }
+                    }
+
+                    // Back button
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.topMargin: 16
+                        anchors.leftMargin: 20
+                        width: 80; height: 32; radius: 6
+                        color: back_area.containsMouse ? "#44ffffff" : "#33000000"
+                        border.color: "#44ffffff"; border.width: 1
+                        Behavior on color { ColorAnimation { duration: 150 } }
+
+                        Row {
+                            anchors.centerIn: parent; spacing: 4
+                            Text { text: "◀"; color: "#fff"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                            Text { text: "Back"; color: "#fff"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                        }
+
+                        MouseArea {
+                            id: back_area
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: { if (detailPage.appStack) detailPage.appStack.pop() }
+                        }
+                    }
+
+                    // Movie info bottom-left
+                    Column {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.margins: 36
+                        spacing: 10
+                        width: parent.width * 0.6
+
+                        Text {
+                            text: detailPage.movie_title
+                            color: "#ffffff"
+                            font.pixelSize: 38
+                            font.bold: true
+                            wrapMode: Text.WordWrap
+                            width: parent.width
+                        }
+
+                        Row {
+                            spacing: 10
+                            Rectangle {
+                                width: yearText.width + 16; height: 22; radius: 4
+                                color: "#33ffffff"; border.color: "#55ffffff"; border.width: 1
+                                Text {
+                                    id: yearText
+                                    anchors.centerIn: parent
+                                    text: detailPage.movie_year !== "" ? detailPage.movie_year : "Unknown year"
+                                    color: "#dddddd"; font.pixelSize: 11
+                                }
+                            }
+                            Rectangle {
+                                width: genreText.width + 16; height: 22; radius: 4
+                                color: "#33e50914"; border.color: "#55e50914"; border.width: 1
+                                Text {
+                                    id: genreText
+                                    anchors.centerIn: parent
+                                    text: detailPage.movie_genre !== "" ? detailPage.movie_genre : "Film"
+                                    color: "#ffaaaa"; font.pixelSize: 11
+                                }
+                            }
+                            Rectangle {
+                                width: ratingText.width + 16; height: 22; radius: 4
+                                color: "#33ffcc00"; border.color: "#55ffcc00"; border.width: 1
+                                visible: detailPage.movie_rating !== "" && detailPage.movie_rating !== "0"
+                                Text {
+                                    id: ratingText
+                                    anchors.centerIn: parent
+                                    text: "★ " + detailPage.movie_rating + "/10"
+                                    color: "#ffdd44"; font.pixelSize: 11
+                                }
+                            }
+                        }
+                    }
+
+                    // Watch Now + no video warning
+                    Column {
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        anchors.margins: 36
+                        spacing: 8
+
+                        Rectangle {
+                            width: 150; height: 46; radius: 8
+                            color: detailPage.video_url !== ""
+                                   ? (watch_btn.containsMouse ? "#ff0a16" : "#e50914")
+                                   : "#444"
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: detailPage.video_url !== "" ? "▶  Watch Now" : "⏳ Loading..."
+                                color: "#ffffff"
+                                font.pixelSize: 15
+                                font.bold: true
+                            }
+
+                            MouseArea {
+                                id: watch_btn
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: detailPage.video_url !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: {
+                                    if (detailPage.video_url !== "")
+                                        detailPage.openPlayer()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ── Description ────────────────────────────────────────
+                Column {
+                    width: parent.width
+                    spacing: 12
+                    topPadding: 28
+                    bottomPadding: 24
+                    leftPadding: 36
+                    rightPadding: 36
+
+                    Text {
+                        text: "About"
+                        color: "#ffffff"
+                        font.pixelSize: 20
+                        font.bold: true
+                    }
+
+                    Text {
+                        text: detailPage.movie_description !== ""
+                              ? detailPage.movie_description
+                              : "No description available for this title."
+                        color: "#cccccc"
+                        font.pixelSize: 15
+                        wrapMode: Text.WordWrap
+                        width: detailPage.width - 72
+                        lineHeight: 1.6
+                    }
+                }
+
+                //Similar movies ko lagi ui
+                Column {
+                    width: parent.width
+                    spacing: 16
+                    topPadding: 8
+                    bottomPadding: 36
+                    leftPadding: 36
+
+                    Text {
+                        text: "Similar Movies"
+                        color: "#ffffff"
+                        font.pixelSize: 18
+                        font.bold: true
+                        visible: loadingSimilar || similar_movies.length > 0
+                    }
+
+                    //Fetch hunu aaghi load sign,
+                    Row {
+                        spacing: 8
+                        visible: loadingSimilar
+                        Repeater {
+                            model: 3
+                            Rectangle {
+                                width: 8; height: 8; radius: 4; color: "#555"
+                                SequentialAnimation on opacity {
+                                    loops: Animation.Infinite; running: loadingSimilar
+                                    PauseAnimation { duration: index * 180 }
+                                    NumberAnimation { to: 1; duration: 250 }
+                                    NumberAnimation { to: 0.2; duration: 250 }
+                                }
+                            }
+                        }
+                    }
+
+                    ScrollView {
+                        width: parent.width - 36
+                        height: 250
+                        visible: similar_movies.length > 0          //similar movie xaina bhane trigger nei hunna
+                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                        clip: true
+
+                        Row {
+                            spacing: 16
+                            Repeater {
+                                model: similar_movies
+                                MovieCard {
+                                    movie_title:  modelData.title   || ""
+                                    movie_year:   modelData.year    || ""
+                                    movie_genre:  modelData.genre   || ""
+                                    movie_rating: parseFloat(modelData.rating) || 0
+                                    poster_url:   modelData.poster_url || ""
+                                    onCardClicked: detailPage.openDetail(modelData)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
