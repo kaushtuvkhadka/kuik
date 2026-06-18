@@ -1,0 +1,3 @@
+set(__QT_DEPLOY_TARGET_KUik_FILE C:/Users/kaushtuv/Desktop/coding/Qt projects/Kuik_S_Final/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/KUik.exe)
+set(__QT_DEPLOY_TARGET_KUik_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_KUik_RUNTIME_DLLS C:/Qt/6.11.1/mingw_64/bin/Qt6Quick.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Multimedia.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6OpenGL.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6QmlMeta.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6QmlModels.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6QmlWorkerScript.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Qml.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Gui.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Network.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Concurrent.dll;C:/Qt/6.11.1/mingw_64/bin/Qt6Core.dll)

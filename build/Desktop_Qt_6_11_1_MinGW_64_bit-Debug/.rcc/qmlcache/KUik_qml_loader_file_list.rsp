@@ -1,0 +1,16 @@
+--resource
+C:/Users/kaushtuv/Desktop/coding/Qt projects/Kuik_S_Final/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/.qt/rcc/qmake_KUik.qrc
+--resource
+C:/Users/kaushtuv/Desktop/coding/Qt projects/Kuik_S_Final/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/.qt/rcc/KUik_raw_qml_0.qrc
+--resource
+C:/Users/kaushtuv/Desktop/coding/Qt projects/Kuik_S_Final/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/.qt/rcc/KUik_raw_qml_0_extra_qmldirs.qrc
+/qt/qml/KUik/qml/Main.qml
+/qt/qml/KUik/qml/pages/HomePage.qml
+/qt/qml/KUik/qml/pages/DetailPage.qml
+/qt/qml/KUik/qml/pages/PlayerPage.qml
+/qt/qml/KUik/qml/pages/SearchPage.qml
+/qt/qml/KUik/qml/components/NavBar.qml
+/qt/qml/KUik/qml/components/MovieCard.qml
+/qt/qml/KUik/qml/components/SearchBar.qml
+/qt/qml/KUik/qml/components/VideoControls.qml
+/qt/qml/KUik/qml/components/LoadingSpinner.qml

@@ -1,0 +1,15 @@
+module KUik
+typeinfo KUik.qmltypes
+prefer :/qt/qml/KUik/
+Main 1.0 qml/Main.qml
+HomePage 1.0 qml/pages/HomePage.qml
+DetailPage 1.0 qml/pages/DetailPage.qml
+PlayerPage 1.0 qml/pages/PlayerPage.qml
+SearchPage 1.0 qml/pages/SearchPage.qml
+NavBar 1.0 qml/components/NavBar.qml
+MovieCard 1.0 qml/components/MovieCard.qml
+SearchBar 1.0 qml/components/SearchBar.qml
+VideoControls 1.0 qml/components/VideoControls.qml
+LoadingSpinner 1.0 qml/components/LoadingSpinner.qml
+depends QtQuick
+

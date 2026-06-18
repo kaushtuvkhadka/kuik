@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/qt/qml/KUik/">
+    <file alias="qml/qmldir">C:/Users/Filurr/Downloads/kuik_fixed/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/KUik/qml/qmldir</file>
+    <file alias="qml/pages/qmldir">C:/Users/Filurr/Downloads/kuik_fixed/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/KUik/qml/pages/qmldir</file>
+    <file alias="qml/components/qmldir">C:/Users/Filurr/Downloads/kuik_fixed/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/KUik/qml/components/qmldir</file>
+  </qresource>
+</RCC>
+

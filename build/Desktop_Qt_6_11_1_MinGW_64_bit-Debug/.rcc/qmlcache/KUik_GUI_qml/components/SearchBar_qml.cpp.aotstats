@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "C:/Users/Filurr/Downloads/kuik_fixed/qml/components/SearchBar.qml"
+                }
+            ],
+            "moduleId": "KUik(KUik_GUI)"
+        }
+    ]
+}
