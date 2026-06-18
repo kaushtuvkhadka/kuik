@@ -32,6 +32,10 @@ qt_add_qml_module(KUik
         qml/components/SearchBar.qml
         qml/components/VideoControls.qml
         qml/components/LoadingSpinner.qml
+        SOURCES
+        SOURCES
+        SOURCES src/archiveapi.cpp
+        SOURCES src/archiveapi.h
 )
 
 target_link_libraries(KUik PRIVATE
@@ -42,3 +46,4 @@ target_link_libraries(KUik PRIVATE
     Qt6::Multimedia
     Qt6::Network
 )
+target_include_directories(KUik PRIVATE src)

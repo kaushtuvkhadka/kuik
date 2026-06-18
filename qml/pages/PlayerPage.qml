@@ -3,28 +3,37 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtMultimedia
 
-
 Item {
     id: playerPage
 
-
-    //DetailsPage bata aako properties haru
+    // DetailsPage parameters passed during navigation
     property var    appStack:    null
-    property string video_url:   ""                                 //Video url save
+    property string video_url:   "" // Video URL to stream or download
     property string movie_title: ""
 
-    //Features haru
+    // UI State and Feature Flags
     property bool  settingsOpen:  false
     property real  playbackSpeed: 1.0
 
+    // Backend Core Instance
+    // Automatically hooked into your C++ QML_ELEMENT class
+    ArchiveAPI {
+        id: archiveApi
 
-    //Background
+        // Handle errors emitted by startDownload() or search routines
+        onErrorOccurred: (errorString) => {
+            error_text.text = errorString
+            error_banner.visible = true
+        }
+    }
+
+    // Background Layer
     Rectangle {
-        anchors.fill: parent                                        //entire page lai cover garxa
+        anchors.fill: parent
         color: "#000000"
     }
 
-    //Playback controls haru
+    // Native Media Processing Pipeline
     MediaPlayer {
         id: media_player
         source: playerPage.video_url
@@ -41,7 +50,7 @@ Item {
             seek_bar.to = media_player.duration
         }
         onPlaybackStateChanged: {
-            hide_timer.restart()                                    //controls auto hide hune timer
+            hide_timer.restart() // Restart the auto-fade timer on playback events
             controls_overlay.opacity = 1
         }
         onErrorOccurred: function(error, errorString) {
@@ -50,13 +59,13 @@ Item {
         }
     }
 
-    //Vid ko surface
+    // Video Rendering Surface
     VideoOutput {
         id: video_output
         anchors.fill: parent
     }
 
-    //progress bar auto hide garne
+    // Controls Auto-Hide Management
     Timer {
         id: hide_timer
         interval: 3500
@@ -68,7 +77,7 @@ Item {
         }
     }
 
-
+    // Global Overlay Toggle Input Capture
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
@@ -77,7 +86,7 @@ Item {
         onClicked:         { controls_overlay.opacity = 1; hide_timer.restart() }
     }
 
-
+    // Notification and Error Banner Alert Component
     Rectangle {
         id: error_banner
         visible: false
@@ -87,7 +96,7 @@ Item {
 
         width: error_text.width + 40
         height: 40
-        radius: 6                                                             //Error text ko looks
+        radius: 6
         color: "#cc330000"
         border.color: "#e50914"
         border.width: 1
@@ -105,7 +114,7 @@ Item {
         }
     }
 
-    //Setting panel features haru
+    // Slide-out Audio & Speed Adjustment Settings Control Panel
     Rectangle {
         id: settings_panel
         width: 230
@@ -133,7 +142,7 @@ Item {
 
             Text { text: "Settings"; color: "#ffffff"; font.pixelSize: 13; font.bold: true }
 
-            //Speed controls
+            // Playback Speed Controls Selector
             Column {
                 width: parent.width
                 spacing: 8
@@ -171,7 +180,7 @@ Item {
                 }
             }
 
-            //Settings ma volume, bahira already xa so paxi remove
+            // Audio Level Configuration Slider
             Column {
                 width: parent.width
                 spacing: 8
@@ -187,20 +196,20 @@ Item {
         }
     }
 
-    // Controls haru ko overlay
+    // Unified HUD Control HUD Layout Containers
     Item {
         id: controls_overlay
         anchors.fill: parent
         opacity: 1
         Behavior on opacity { NumberAnimation { duration: 350 } }
 
-
+        // Top Navigation Title Bar Element
         Rectangle {
             anchors.top: parent.top
             width: parent.width; height: 80
             gradient: Gradient {
                 orientation: Gradient.Vertical
-                GradientStop { position: 0.0; color: "#bb000000" }                              //Overlay ko background
+                GradientStop { position: 0.0; color: "#bb000000" }
                 GradientStop { position: 1.0; color: "transparent" }
             }
             Row {
@@ -209,22 +218,21 @@ Item {
                 anchors.leftMargin: 16
                 spacing: 12
 
-                // Back button
+                // Navigation Pop Back Command Button
                 Rectangle {
                     width: 32; height: 32; radius: 16
-                    color: back_ma.containsMouse ? "#44ffffff" : "transparent"                  //Highliht hunxa mouse hover garda
+                    color: back_ma.containsMouse ? "#44ffffff" : "transparent"
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Text { anchors.centerIn: parent; text: "◀"; color: "#fff"; font.pixelSize: 14 }
 
-
                     MouseArea {
                         id: back_ma
-                        anchors.fill: parent; hoverEnabled: true                            //Mouse le click garne banaune
+                        anchors.fill: parent; hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             media_player.stop()
                             if (playerPage.appStack)
-                                playerPage.appStack.pop()                               //Back to previos page
+                                playerPage.appStack.pop()
                         }
                     }
                 }
@@ -233,13 +241,13 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: playerPage.movie_title
                     color: "#ffffff"; font.pixelSize: 15; font.bold: true
-                    elide: Text.ElideRight                                                 //Screen bahira text jana didaina
+                    elide: Text.ElideRight
                     width: playerPage.width - 180
                 }
             }
         }
 
-        // ── Bottom gradient + controls ─────────────────────────────────
+        // Bottom Timeline Position & Action Control Strip Bar
         Rectangle {
             anchors.bottom: parent.bottom
             width: parent.width; height: 110
@@ -258,7 +266,7 @@ Item {
                 anchors.bottomMargin: 12
                 spacing: 4
 
-                //Seek bar
+                // Seek Progress Slider Metrics Tracker Strip
                 RowLayout {
                     width: parent.width
                     spacing: 10
@@ -269,7 +277,6 @@ Item {
                         Layout.preferredWidth: 45
                     }
 
-                    //Time jummp garxa, bar ma click garyo bhane skip to there
                     Slider {
                         id: seek_bar
                         Layout.fillWidth: true
@@ -280,22 +287,21 @@ Item {
                     }
 
                     Text {
-                        text: formatTime(media_player.duration)             //total duration media ko format garera
+                        text: formatTime(media_player.duration)
                         color: "#888888"; font.pixelSize: 12
                         Layout.preferredWidth: 45
                         horizontalAlignment: Text.AlignRight
                     }
                 }
 
-
+                // Core Playback Controls & Utility Bar Components Toggle Row
                 RowLayout {
                     width: parent.width
                     spacing: 2
 
-                    //Buttons haru
+                    // Primary Play / Pause State Controller Switch
                     CtrlBtn {
                         btnIcon: media_player.playbackState === MediaPlayer.PlayingState ? "⭕" : "▶"
-
                         onBtnClicked: {
                             if (media_player.playbackState === MediaPlayer.PlayingState)
                                 media_player.pause()
@@ -304,45 +310,51 @@ Item {
                         }
                     }
 
-                    //10s back
+                    // Seek Backward 10 Seconds
                     CtrlBtn {
                         btnIcon: "↺"
-                        onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)            //Math le media cap rakhxa
+                        onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)
                     }
 
-                    //10s aagadi
+                    // Seek Forward 10 Seconds
                     CtrlBtn {
                         btnIcon: "↻"
                         onBtnClicked: media_player.position = Math.min(media_player.duration, media_player.position + 10000)
                     }
 
+                    Item { Layout.fillWidth: true } // Expandable Spacer Block Component
 
-
-                    Item { Layout.fillWidth: true }                         //Khali space fill
-
-
-                    //Vol button
+                    // Audio Mode Indicator Symbol Flag
                     Text {
                         text: vol_slider.value === 0 ? "🔇" : vol_slider.value < 50 ? "🔉" : "🔊"
                         color: "#ffffff"; font.pixelSize: 15
                         Layout.alignment: Qt.AlignVCenter
                     }
 
-                    //vol slider
+                    // Direct Action Audio Volume Adjust Track Slider
                     Slider {
                         id: vol_slider
-                        width: 80; from: 0; to: 100; value: 80                      //80 ma initiate hunxa
+                        width: 80; from: 0; to: 100; value: 80
                         Layout.alignment: Qt.AlignVCenter
                     }
 
-                    //settings
+                    // Options Control Menu Layer Toggle Button Layout
                     CtrlBtn {
                         btnIcon: "⚙"
-                        active: settingsOpen                                //true flase
+                        active: settingsOpen
                         onBtnClicked: settingsOpen = !settingsOpen
                     }
 
-                    //fullscreen
+                    // Asynchronous Local System Downloads Storage Hook Button Entry
+                    CtrlBtn {
+                        btnIcon: "🡻"
+                        onBtnClicked: {
+                            // Safely invokes the non-static download execution pipeline method inside your ArchiveAPI object model wrapper instance
+                            archiveApi.startDownload(playerPage.video_url)
+                        }
+                    }
+
+                    // Device App Window Fullscreen Aspect State Alternator Modality
                     CtrlBtn {
                         btnIcon: "⛶"
                         onBtnClicked: {
@@ -357,10 +369,10 @@ Item {
         }
     }
 
-
+    // Inline Reusable Custom Styled Control Button Template Object Factory Implementation
     component CtrlBtn: Rectangle {
         property string btnIcon: ""
-        property bool   active:  false                                  //button select xa ke nai
+        property bool   active:  false
         signal btnClicked()
 
         width: 34; height: 34; radius: 17
@@ -384,7 +396,7 @@ Item {
         }
     }
 
-    //time format
+    // Human Readable Media Time Unit Transformation Engine Formatting Routine
     function formatTime(ms) {
         if (ms <= 0) return "00:00"
         var s   = Math.floor(ms / 1000)
@@ -397,6 +409,7 @@ Item {
         return mm + ":" + ss
     }
 
+    // Automate Autoplay Launch On Interface Component Render Attachment Execution
     Component.onCompleted: {
         if (video_url !== "") media_player.play()
     }

@@ -6,24 +6,20 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDebug>
+#include <QStandardPaths>
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
 
-
-
-//Helpers ------Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
-    // Thumbnail create
     return QString("https://archive.org/services/img/%1").arg(id);
 }
 
-
-
-QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //Direct vidoe file ko url create, .mp4 jasto
-    return QString("https://archive.org/download/%1/%2").arg(id, filename);     //Nwtroking include hunna, direct url xa bhane matra play hunxa
+// Fixed: Removed ArchiveAPI:: call prefix within class definition context
+QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {
+    return QString("https://archive.org/download/%1/%2").arg(id, filename);
 }
 
-
-
-//Best quality lai pick garxa
 QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
     QString best512, bestMp4, bestAny;
 
@@ -34,9 +30,6 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
         QString lname = name.toLower();
 
         if (!lname.endsWith(".mp4")) continue;
-
-
-        // Thuloooooooo vid lai skip garxa
         if (lname.contains("orig")) continue;
 
         if (lname.contains("512kb") || lname.contains("512") ) {
@@ -48,34 +41,95 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
         }
     }
 
-    QString chosen = !best512.isEmpty() ? best512          //best select
-                   : !bestMp4.isEmpty() ? bestMp4
-                   : bestAny;
+    QString chosen = !best512.isEmpty() ? best512
+                     : !bestMp4.isEmpty() ? bestMp4
+                                          : bestAny;
 
     if (chosen.isEmpty()) return QString();
-    return streamUrl(id, chosen);                           // actual streaming URL build garxa
+    return streamUrl(id, chosen);
 }
 
-
-\
-//Http request garne, need to check
 ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
     net = new QNetworkAccessManager(this);
 }
+void ArchiveAPI::startDownload(QString url) {
+    if (url.isEmpty()) {
+        qWarning() << "Download URL is empty.";
+        return;
+    }
 
+    qDebug() << "Download initiated for URL:" << url;
 
+    QUrl qurl(url);
+    QString fileName = QFileInfo(qurl.path()).fileName();
+    if (fileName.isEmpty()) {
+        fileName = "downloaded_video.mp4";
+    }
 
-//recommandation ko lagi, iniital view when loading the app
+    // --- SYSTEM VIDEOS LOCATION LOGIC ---
+    // QStandardPaths::MoviesLocation targets the OS user's default Videos folder
+    QString standardVideoDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    QString targetDirPath = standardVideoDir + QDir::separator() + "kuik" + QDir::separator() + "downloads";
+
+    // Enforce folder creation on disk if it doesn't exist yet
+    QDir dir(targetDirPath);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    QString fullFilePath = targetDirPath + QDir::separator() + fileName;
+    // ------------------------------------
+
+    QFile *localFile = new QFile(fullFilePath, this);
+    if (!localFile->open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to open local target file path location:" << fullFilePath;
+        delete localFile;
+        emit errorOccurred("Failed to save target file to Videos/kuik/downloads destination.");
+        return;
+    }
+
+    QNetworkRequest request(qurl);
+    QNetworkReply *reply = net->get(request);
+
+    // Write network stream buffers progressively as data slices reach the network interface
+    connect(reply, &QNetworkReply::readyRead, this, [reply, localFile]() {
+        if (localFile->isOpen()) {
+            localFile->write(reply->readAll());
+        }
+    });
+
+    // Handle progress indicator monitoring percentages
+    connect(reply, &QNetworkReply::downloadProgress, this, [this](qint64 bytesReceived, qint64 bytesTotal) {
+        if (bytesTotal > 0) {
+            int percentage = static_cast<int>((bytesReceived * 100) / bytesTotal);
+            emit downloadProgress(percentage);
+            qDebug() << "Current download lifecycle progress:" << percentage << "%";
+        }
+    });
+
+    // Close and flush open disk storage objects when download completes
+    connect(reply, &QNetworkReply::finished, this, [this, reply, localFile, fullFilePath]() {
+        reply->deleteLater();
+
+        if (localFile->isOpen()) {
+            localFile->close();
+        }
+        localFile->deleteLater();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Download completed successfully. Saved to:" << fullFilePath;
+        } else {
+            qWarning() << "Download failed:" << reply->errorString();
+            QFile::remove(fullFilePath); // Clean up incomplete file fragments
+            emit errorOccurred("Download failed: " + reply->errorString());
+        }
+    });
+}
 void ArchiveAPI::fetchCurated() {
     emit loadingChanged(true);
-
     QUrl url("https://archive.org/advancedsearch.php");
     QUrlQuery q;
-
-
-    // Downloads according, movies haru lai fetch garxa, top 10/20 bhanya jasto
-    q.addQueryItem("q",
-        "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");     //adult tag bhako file lai neglect garxa
+    q.addQueryItem("q", "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");
     q.addQueryItem("fl[]", "identifier");
     q.addQueryItem("fl[]", "title");
     q.addQueryItem("fl[]", "year");
@@ -83,31 +137,24 @@ void ArchiveAPI::fetchCurated() {
     q.addQueryItem("fl[]", "description");
     q.addQueryItem("fl[]", "downloads");
     q.addQueryItem("sort[]", "downloads desc");
-    q.addQueryItem("rows",  "30");                //kati ota fetch garne
+    q.addQueryItem("rows",  "30");
     q.addQueryItem("page",  "1");
     q.addQueryItem("output","json");
-
-    url.setQuery(q);                                            //chosen bata url build
+    url.setQuery(q);
 
     QNetworkReply *reply = net->get(QNetworkRequest(url));
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {                        //htp request
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         onSearchReply(reply, true);
     });
 }
 
-
-// Search user bata
 void ArchiveAPI::search(const QString &query) {
-    if (query.trimmed().isEmpty()) return;                          //No action
-    emit loadingChanged(true);                                      //Load bhairako dekhauxa
+    if (query.trimmed().isEmpty()) return;
+    emit loadingChanged(true);
 
     QUrl url("https://archive.org/advancedsearch.php");
     QUrlQuery q;
-
-
-    //Video aaune marta banako
-    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films")      //featured matra dekhauxa
-                       .arg(query.trimmed());
+    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films").arg(query.trimmed());
     q.addQueryItem("q",      qStr);
     q.addQueryItem("fl[]",   "identifier");
     q.addQueryItem("fl[]",   "title");
@@ -119,17 +166,13 @@ void ArchiveAPI::search(const QString &query) {
     q.addQueryItem("rows",   "20");
     q.addQueryItem("page",   "1");
     q.addQueryItem("output", "json");
-
     url.setQuery(q);
 
-    QNetworkReply *reply = net->get(QNetworkRequest(url));                                  //File request hunxa
+    QNetworkReply *reply = net->get(QNetworkRequest(url));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         onSearchReply(reply, false);
     });
 }
-
-
-
 
 void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
     reply->deleteLater();
@@ -161,12 +204,8 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
     resolveVideoUrls(partials, isCurated);
 }
 
-
-
-//Error checck hunxa ani json parse, if error aayo bhane result aaudaina natra url build hunxaS
 QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
     QVariantList result;
-
     QJsonObject root   = doc.object();
     QJsonObject resp   = root["response"].toObject();
     QJsonArray  docs   = resp["docs"].toArray();
@@ -176,7 +215,6 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         QString id = item["identifier"].toString();
         if (id.isEmpty()) continue;
 
-        // strig ra array both
         QString genre;
         QJsonValue subj = item["subject"];
         if (subj.isArray()) {
@@ -189,16 +227,12 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         }
         if (genre.isEmpty()) genre = "Film";
 
-
-        //string ne huna sakxa, array ne
         QString desc;
         QJsonValue dv = item["description"];
         if (dv.isArray()) desc = dv.toArray().first().toString();
         else              desc = dv.toString();
 
-        // Description 300 character bhanda badhi xa bhane cut gardinxa
         if (desc.length() > 300) desc = desc.left(300) + "...";
-
 
         QVariantMap m;
         m["identifier"]  = id;
@@ -208,23 +242,16 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         m["description"] = desc;
         m["poster_url"]  = posterUrl(id);
         m["video_url"]   = "";
-        m["rating"]      = QString::number(
-                               qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0),
-                               'f', 1);
+        m["rating"]      = QString::number(qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0), 'f', 1);
 
         result.append(m);
     }
-
     return result;
 }
 
-
-
-//file find garxa ani play, best quality haru choose hunxa
 void ArchiveAPI::resolveVideoUrls(QVariantList partials, bool isCurated) {
     int total = partials.size();
     pendingResolutions = total;
-
 
     auto resolved = std::make_shared<QVariantList>();
     auto pending  = std::make_shared<int>(total);
@@ -237,32 +264,32 @@ void ArchiveAPI::resolveVideoUrls(QVariantList partials, bool isCurated) {
         QNetworkReply *reply = net->get(QNetworkRequest(url));
 
         connect(reply, &QNetworkReply::finished, this,
-            [this, reply, movie, resolved, pending, isCurated]() mutable {
-                reply->deleteLater();
+                [this, reply, movie, resolved, pending, isCurated]() mutable {
+                    reply->deleteLater();
 
-                if (reply->error() == QNetworkReply::NoError) {
-                    QByteArray data = reply->readAll();
-                    QJsonDocument doc = QJsonDocument::fromJson(data);
-                    if (!doc.isNull()) {
-                        QJsonObject root  = doc.object();
-                        QJsonArray  files = root["files"].toArray();
-                        QString     id    = movie["identifier"].toString();
-                        QString     vurl  = bestMp4(files, id);
-                        if (!vurl.isEmpty()) {
-                            QVariantMap m = movie;
-                            m["video_url"] = vurl;
-                            resolved->append(m);
+                    if (reply->error() == QNetworkReply::NoError) {
+                        QByteArray data = reply->readAll();
+                        QJsonDocument doc = QJsonDocument::fromJson(data);
+                        if (!doc.isNull()) {
+                            QJsonObject root  = doc.object();
+                            QJsonArray  files = root["files"].toArray();
+                            QString     id    = movie["identifier"].toString();
+                            QString     vurl  = bestMp4(files, id);
+                            if (!vurl.isEmpty()) {
+                                QVariantMap m = movie;
+                                m["video_url"] = vurl;
+                                resolved->append(m);
+                            }
                         }
                     }
-                }
 
-                (*pending)--;
-                if (*pending == 0) {
-                    emit loadingChanged(false);
-                    if (isCurated) emit curatedReady(*resolved);
-                    else           emit searchResultsReady(*resolved);
+                    (*pending)--;
+                    if (*pending == 0) {
+                        emit loadingChanged(false);
+                        if (isCurated) emit curatedReady(*resolved);
+                        else           emit searchResultsReady(*resolved);
+                    }
                 }
-            }
-        );
+                );
     }
 }
