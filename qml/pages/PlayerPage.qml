@@ -24,6 +24,8 @@ Item {
         color: "#000000"
     }
 
+
+
     //Playback controls haru
     MediaPlayer {
         id: media_player
