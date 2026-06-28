@@ -9,12 +9,19 @@
 
 
 
+bool Block(const QString &text)
+{
+    QString t = text.toLower();
+    return t.contains("sex");
+}
+
+
+
 //Helpers ------Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
     // Thumbnail create
     return QString("https://archive.org/services/img/%1").arg(id);
 }
-
 
 
 QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //Direct vidoe file ko url create, .mp4 jasto
@@ -175,49 +182,65 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
     QJsonObject resp   = root["response"].toObject();
     QJsonArray  docs   = resp["docs"].toArray();
 
+
+
+    //Details haru fetch garxa, title, desc, genre.....
     for (const QJsonValue &v : docs) {
         QJsonObject item = v.toObject();
         QString id = item["identifier"].toString();
-        if (id.isEmpty()) continue;
 
-        // strig ra array both
-        QString genre;
-        QJsonValue subj = item["subject"];
-        if (subj.isArray()) {
-            QStringList parts;
-            for (const auto &s : subj.toArray())
-                parts << s.toString();
-            genre = parts.first();
-        } else {
-            genre = subj.toString().split(";").first().trimmed();
+            if (id.isEmpty()) continue;
+
+            QString title = item["title"].toString();
+
+            // strig ra array both
+            QString genre;
+
+            QJsonValue subj = item["subject"];
+
+            if (subj.isArray()) {
+                QStringList parts;
+                    for (const auto &s : subj.toArray())
+                        parts << s.toString();
+
+                genre = parts.first();
+            }
+            else {
+                genre = subj.toString().split(";").first().trimmed();
+            }
+
+            if (genre.isEmpty()) genre = "Film";
+
+
+            //string ne huna sakxa, array ne
+            QString desc;
+            QJsonValue dv = item["description"];
+            if (dv.isArray()) desc = dv.toArray().first().toString();
+            else              desc = dv.toString();
+
+            // Description 300 character bhanda badhi xa bhane cut gardinxa
+            if (desc.length() > 300) desc = desc.left(300) + "...";
+
+
+            //Block/Ignore garxa if blocked word xa bhbane
+            if (Block(title) || Block(genre) || Block(desc)) {
+                continue;
+            }
+
+            QVariantMap m;
+            m["identifier"]  = id;
+            m["title"]       = item["title"].toString();
+            m["year"]        = item["year"].toString();
+            m["genre"]       = genre;
+            m["description"] = desc;
+            m["poster_url"]  = posterUrl(id);
+            m["video_url"]   = "";
+            m["rating"]      = QString::number(
+                                   qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0),
+                                   'f', 1);
+
+            result.append(m);
         }
-        if (genre.isEmpty()) genre = "Film";
-
-
-        //string ne huna sakxa, array ne
-        QString desc;
-        QJsonValue dv = item["description"];
-        if (dv.isArray()) desc = dv.toArray().first().toString();
-        else              desc = dv.toString();
-
-        // Description 300 character bhanda badhi xa bhane cut gardinxa
-        if (desc.length() > 300) desc = desc.left(300) + "...";
-
-
-        QVariantMap m;
-        m["identifier"]  = id;
-        m["title"]       = item["title"].toString();
-        m["year"]        = item["year"].toString();
-        m["genre"]       = genre;
-        m["description"] = desc;
-        m["poster_url"]  = posterUrl(id);
-        m["video_url"]   = "";
-        m["rating"]      = QString::number(
-                               qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0),
-                               'f', 1);
-
-        result.append(m);
-    }
 
     return result;
 }
