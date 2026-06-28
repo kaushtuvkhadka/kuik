@@ -9,14 +9,6 @@
 
 
 
-bool Block(const QString &text)
-{
-    QString t = text.toLower();
-    return t.contains("sex");
-}
-
-
-
 //Helpers ------Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
     // Thumbnail create
@@ -28,6 +20,21 @@ QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //
     return QString("https://archive.org/download/%1/%2").arg(id, filename);     //Nwtroking include hunna, direct url xa bhane matra play hunxa
 }
 
+
+//Blocking words
+bool ArchiveAPI::Block(const QString &text)
+{
+    QString t = text.toLower();
+
+    if (t.isEmpty()) return false;
+
+    //blocked/ignore words haru
+    return t.contains("sex") ||
+           t.contains("sexual") ||
+           t.contains("adult") ||
+           t.contains("nude") ||
+           t.contains("xxx");
+}
 
 
 //Best quality lai pick garxa
@@ -224,12 +231,15 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
 
             //Block/Ignore garxa if blocked word xa bhbane
             if (Block(title) || Block(genre) || Block(desc)) {
+                int i = 1;
+                qDebug() << "Block  " << i << "\n";
+                i++;
                 continue;
             }
 
             QVariantMap m;
             m["identifier"]  = id;
-            m["title"]       = item["title"].toString();
+            m["title"]       = title;
             m["year"]        = item["year"].toString();
             m["genre"]       = genre;
             m["description"] = desc;
