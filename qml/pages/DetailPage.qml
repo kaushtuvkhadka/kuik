@@ -50,14 +50,6 @@ Rectangle {
             //kati ota similar movie haru fetch garne
             for (var i = 0; i < movies.length && filtered.length < 4; i++) {
 
-         /*       if (movies[i].identifier !== detailPage.movie_identifier){      //view garirako movie fetch bhayo bhbane ignore hunxa
-
-                    console.log("Movie: ", movies[i].title, "\nUrl: ", movies[i].video_url);
-                    //console.log(JSON.stringify(movies[i]))
-                    filtered.push(movies[i])
-                }                               */
-
-
                 //genre same check garne
                 if (movies[i].identifier !== detailPage.movie_identifier) {
                             if (getGenre(movies[i]) === movie_genre.toLowerCase()) {
@@ -140,7 +132,7 @@ Rectangle {
                 width: parent.width
                 spacing: 0
 
-                // ── Hero section ───────────────────────────────────────
+                // Hero section
                 Rectangle {
                     id: hero_section
                     width: parent.width
@@ -179,7 +171,7 @@ Rectangle {
                         }
                     }
 
-                    // Back button
+                    //back button
                     Rectangle {
                         anchors.top: parent.top
                         anchors.left: parent.left
@@ -258,7 +250,7 @@ Rectangle {
                         }
                     }
 
-                    // Watch Now + no video warning
+                    // Watch now ra no video warning
                     Column {
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
@@ -294,7 +286,7 @@ Rectangle {
                     }
                 }
 
-                // ── Description ────────────────────────────────────────
+                //Description
                 Column {
                     width: parent.width
                     spacing: 12
