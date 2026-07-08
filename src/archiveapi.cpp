@@ -22,13 +22,13 @@ QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //
 
 
 //Blocking words
-bool ArchiveAPI::Block(const QString &text)
-{
+bool ArchiveAPI::Block(const QString &text){
     QString t = text.toLower();
 
-    if (t.isEmpty()) return false;
+    if (t.isEmpty())
+        return false;
 
-    //blocked/ignore words haru
+        //blocked/ignore words haru
     return t.contains("sex") ||
            t.contains("sexual") ||
            t.contains("adult") ||
@@ -229,7 +229,8 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
             if (desc.length() > 300) desc = desc.left(300) + "...";
 
 
-            //Block/Ignore garxa if blocked word xa bhbane
+
+            //Block/Ignore garxa if blocked word xa bhbane-------------------Print remove kaam bhayepaxi
             if (Block(title) || Block(genre) || Block(desc)) {
                 int i = 1;
                 qDebug() << "Block  " << i << "\n";

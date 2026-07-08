@@ -54,4 +54,8 @@ private:
     static QString streamUrl(const QString &identifier, const QString &filename);
 
     static QString bestMp4(const QJsonArray &files, const QString &identifier);
+
+    static bool Block(const QString &text);
+
+
 };
