@@ -3,6 +3,9 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../components"
 
+
+
+
 Rectangle {
     id: detailPage
     color: "#0f0f0f"
@@ -347,7 +350,7 @@ Rectangle {
                             }
                         }
                     }
-
+                                //slider design change scroll view bata
                     ScrollView {
                         width: parent.width - 36
                         height: 250
