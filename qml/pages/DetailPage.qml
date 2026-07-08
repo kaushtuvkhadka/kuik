@@ -17,38 +17,61 @@ Rectangle {
     property string video_url:         ""
     property string movie_identifier:  ""
 
-    // Similar movies loaded from Archive by genre search
-    property var    similar_movies:    []
-    property bool   loadingSimilar:    false
 
-    // ── Wire to backend for similar movies ────────────────────────────
-    // We re-use the searchResultsReady signal but only trigger it
-    // from this page's fetchSimilar() call.
+
+    // Similar movies ko lagi
+    property var    similar_movies:    []
+    property bool   loadingSimilar:    false                //search bhairako bela true hunxa, tala define xa
     property bool   expectingSimilar: false
 
+
+
+
+    function getGenre(movie) {
+        return (movie.genre || movie.subject || "").toLowerCase()             //genre find
+    }
+
+
+
     Connections {
-        target: archiveApi
-        // enabled only while this page is waiting for its own similar-movies search
-        // prevents stealing results meant for SearchPage
-        enabled: detailPage.expectingSimilar
+        target: archiveApi                     //kun signal lai sunne/respond garne herne
+
+        enabled: detailPage.expectingSimilar        //expectingSimilar property true huda matra signal  run hunxa, by default false hunxa
+
+
         function onSearchResultsReady(movies) {
             detailPage.expectingSimilar = false
             detailPage.loadingSimilar   = false
-            // Filter out the current movie, take up to 8
+
+            //similar movie fetch basne
             var filtered = []
-            for (var i = 0; i < movies.length && filtered.length < 8; i++) {
-                if (movies[i].identifier !== detailPage.movie_identifier)
-                    filtered.push(movies[i])
+
+
+            //kati ota similar movie haru fetch garne
+            for (var i = 0; i < movies.length && filtered.length < 4; i++) {
+
+                //genre same check garne
+                if (movies[i].identifier !== detailPage.movie_identifier) {
+                            if (getGenre(movies[i]) === movie_genre.toLowerCase()) {
+                                console.log("     Movie: ", movies[i].title, "\n\tUrl: ", movies[i].video_url,"\n\tGenre: ", movies[i].genre);
+                                filtered.push(movies[i])
+                            }
+                        }
             }
-            detailPage.similar_movies = filtered
+            detailPage.similar_movies = filtered                //similar movies ma save hunxa filtered movie list
         }
     }
 
+
+    //similar movie fetch garne func, initiate garne
     function fetchSimilar() {
-        if (movie_genre === "") return
+        if (movie_genre === "")                         //movie ko genre xaina bhane end garxa process fetching ko
+            return
+
+        //genre xa bhane yo hunxa
         expectingSimilar = true
         loadingSimilar   = true
-        // Search by genre keyword
+        //genre anushar search
         archiveApi.search(movie_genre)
     }
 
@@ -109,7 +132,7 @@ Rectangle {
                 width: parent.width
                 spacing: 0
 
-                // ── Hero section ───────────────────────────────────────
+                // Hero section
                 Rectangle {
                     id: hero_section
                     width: parent.width
@@ -118,7 +141,7 @@ Rectangle {
 
                     Image {
                         anchors.fill: parent
-                        source: detailPage.poster_url
+                        source: detailPage.poster_url           //url aauxa ani poster fetch
                         fillMode: Image.PreserveAspectCrop
                         opacity: 0.5
                         visible: detailPage.poster_url !== ""
@@ -148,7 +171,7 @@ Rectangle {
                         }
                     }
 
-                    // Back button
+                    //back button
                     Rectangle {
                         anchors.top: parent.top
                         anchors.left: parent.left
@@ -227,7 +250,7 @@ Rectangle {
                         }
                     }
 
-                    // Watch Now + no video warning
+                    // Watch now ra no video warning
                     Column {
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
@@ -263,7 +286,7 @@ Rectangle {
                     }
                 }
 
-                // ── Description ────────────────────────────────────────
+                //Description
                 Column {
                     width: parent.width
                     spacing: 12
@@ -291,7 +314,7 @@ Rectangle {
                     }
                 }
 
-                // ── Similar movies ─────────────────────────────────────
+                //Similar movies ko lagi ui
                 Column {
                     width: parent.width
                     spacing: 16
@@ -307,7 +330,7 @@ Rectangle {
                         visible: loadingSimilar || similar_movies.length > 0
                     }
 
-                    // Loading dots for similar
+                    //Fetch hunu aaghi load sign,
                     Row {
                         spacing: 8
                         visible: loadingSimilar
@@ -328,7 +351,7 @@ Rectangle {
                     ScrollView {
                         width: parent.width - 36
                         height: 250
-                        visible: similar_movies.length > 0
+                        visible: similar_movies.length > 0          //similar movie xaina bhane trigger nei hunna
                         ScrollBar.vertical.policy: ScrollBar.AlwaysOff
                         clip: true
 

@@ -1,45 +1,61 @@
-#ifndef ARCHIVEAPI_H
-#define ARCHIVEAPI_H
+#pragma once
 
 #include <QObject>
-#include <QtQml>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QVariantList>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QVariantList>
+#include <QVariantMap>
+#include <QString>
+
 
 class ArchiveAPI : public QObject {
     Q_OBJECT
-    QML_ELEMENT
 
 public:
     explicit ArchiveAPI(QObject *parent = nullptr);
 
-    // QML-invokable methods
-    Q_INVOKABLE void startDownload(QString url);
+
     Q_INVOKABLE void fetchCurated();
+
+
     Q_INVOKABLE void search(const QString &query);
 
-    // Helpers
-    static QString posterUrl(const QString &id);
-    QString streamUrl(const QString &id, const QString &filename); // Non-static member function
-
 signals:
+
+    void curatedReady(QVariantList movies);
+
+
+    void searchResultsReady(QVariantList movies);
+
+    void errorOccurred(const QString &message);
+
     void loadingChanged(bool loading);
-    void errorOccurred(QString error);
-    void curatedReady(QVariantList results);
-    void searchResultsReady(QVariantList results);
-    void downloadProgress(int percentage); // Signal to track progress in QML if desired
+
+private slots:
+    void onSearchReply(QNetworkReply *reply, bool isCurated);
 
 private:
     QNetworkAccessManager *net;
-    int pendingResolutions = 0;
 
     QVariantList parseSearchResponse(const QJsonDocument &doc);
-    void resolveVideoUrls(QVariantList partials, bool isCurated);
-    void onSearchReply(QNetworkReply *reply, bool isCurated);
-    QString bestMp4(const QJsonArray &files, const QString &id);
-};
 
-#endif // ARCHIVEAPI_H
+    void resolveVideoUrls(QVariantList partials, bool isCurated);
+
+    int pendingResolutions = 0;
+    QVariantList resolvedCurated;
+    QVariantList resolvedSearch;
+
+
+    static QString posterUrl(const QString &identifier);
+
+    static QString streamUrl(const QString &identifier, const QString &filename);
+
+    static QString bestMp4(const QJsonArray &files, const QString &identifier);
+
+    static bool Block(const QString &text);
+
+
+};
