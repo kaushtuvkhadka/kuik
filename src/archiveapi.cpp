@@ -33,6 +33,8 @@ bool ArchiveAPI::Block(const QString &text){
            t.contains("sexual") ||
            t.contains("adult") ||
            t.contains("nude") ||
+           t.contains("nudist") ||
+           t.contains("molester") ||
            t.contains("xxx");
 }
 
