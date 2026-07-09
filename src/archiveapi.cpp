@@ -187,7 +187,6 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
     QJsonArray  const docs   = resp["docs"].toArray();
 
 
-
     //Details haru fetch garxa, title, desc, genre.....
     for (const QJsonValue &v : docs) {
         QJsonObject item = v.toObject();
