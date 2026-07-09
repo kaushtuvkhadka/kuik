@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 Rectangle {
     id: navBar
+    objectName: "navBar"
     height: 56
     color: "#1a1a1a"
 
@@ -61,8 +62,11 @@ Rectangle {
                     }
 
                     Keys.onReturnPressed: {
-                        if (text.trimmed().length > 0)
-                            navBar.searchRequested(text.trimmed())
+                        if (text.trim().length > 0){
+                            // if(appStack.currentItem.pageName == "searchPage"){
+                            // searchPage.appStack.push("../pages/SearchPage.qml")
+                        // }
+                        }
                     }
                 }
 
@@ -75,8 +79,27 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            if (search_input.text.trimmed().length > 0)
-                                navBar.searchRequested(search_input.text.trimmed())
+                            if (search_input.text.trim().length > 0){
+                                if(appStack.currentItem.pageName == "searchPage"){
+                                    appStack.push("../pages/SearchPage.qml", {
+                                                appStack: appStack,
+                                                initialQuery: search_input.text.trim()
+                                            })
+                                }
+
+                                // appStack.push("../pages/SearchPage.qml", {
+                                //             appStack: appStack,
+                                //             initialQuery: search_input.text.trim()
+                                //         })
+                                console.log("Current page:", appStack.currentItem.objectName)
+
+                                console.log(appStack.currentItem.pageName)
+
+                                navBar.searchRequested(search_input.text.trim())
+
+
+                            }
+
                         }
                     }
                 }
