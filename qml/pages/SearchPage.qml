@@ -3,8 +3,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../components"
 
+
+
+
 Rectangle {
     id: searchPage
+    objectName: "searchPage"
     color: "#0f0f0f"
 
     property var    appStack:     null
@@ -37,7 +41,7 @@ Rectangle {
     }
 
     function doSearch(query) {
-        if (query.trimmed() === "") return
+        if (query.trim() === "") return
         lastQuery = query
         results   = []
         isLoading = true
@@ -72,8 +76,19 @@ Rectangle {
 
         NavBar {
             id: nav_bar
+            // StackView: searchPage.appStack
+
             width: parent.width
-            onSearchRequested: function(query) { searchPage.doSearch(query) }
+            onSearchRequested: function(query) {
+                if (searchPage.appStack){
+
+                    console.log("search request pathayo")
+                    console.log(query)
+                    searchPage.doSearch(query)
+                }else{
+                    throw "appstack null or sth"
+                }
+            }
             onMenuClicked: { }
         }
 
@@ -221,3 +236,5 @@ Rectangle {
         }
     }
 }
+
+

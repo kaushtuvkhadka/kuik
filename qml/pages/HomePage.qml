@@ -107,7 +107,8 @@ Rectangle {
                 var p = c.createObject(null, { appStack: homePage.appStack, initialQuery: query })
                 homePage.appStack.push(p)
             }
-            onMenuClicked: { /* future settings */ }
+            onMenuClicked: {
+                }
         }
 
         // ── Loading state ──────────────────────────────────────────────
