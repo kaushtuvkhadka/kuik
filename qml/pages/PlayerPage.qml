@@ -357,7 +357,13 @@ Item {
                     }
 
 
-
+                    CtrlBtn {
+                        btnIcon: "🡻"
+                        onBtnClicked: {
+                            // Safely invokes the non-static download execution pipeline method inside your ArchiveAPI object model wrapper instance
+                            archiveApi.startDownload(playerPage.video_url)
+                        }
+                    }
 
                     //fullscreen
                     CtrlBtn {

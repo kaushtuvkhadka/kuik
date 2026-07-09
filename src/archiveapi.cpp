@@ -6,8 +6,11 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDebug>
-
-
+#include <QStandardPaths>
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
+#include <QCoreApplication>
 
 //Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
@@ -84,6 +87,79 @@ ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
 }
 
 
+void ArchiveAPI::startDownload(QString url) {
+    if (url.isEmpty()) {
+        qWarning() << "Download URL is empty.";
+        return;
+    }
+
+    qDebug() << "Download initiated for URL:" << url;
+
+    QUrl qurl(url);
+    QString fileName = QFileInfo(qurl.path()).fileName();
+    if (fileName.isEmpty()) {
+        fileName = "downloaded_video.mp4";
+    }
+
+    // --- SYSTEM VIDEOS LOCATION LOGIC ---
+    // QStandardPaths::MoviesLocation targets the OS user's default Videos folder
+    QString standardVideoDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    QString targetDirPath = QString(PROJECT_ROOT_DIR) + "/downloads";
+
+    // Enforce folder creation on disk if it doesn't exist yet
+    QDir dir(targetDirPath);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    QString fullFilePath = targetDirPath + QDir::separator() + fileName;
+    // ------------------------------------
+
+    QFile *localFile = new QFile(fullFilePath, this);
+    if (!localFile->open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to open local target file path location:" << fullFilePath;
+        delete localFile;
+        emit errorOccurred("Failed to save target file to Videos/kuik/downloads destination.");
+        return;
+    }
+
+    QNetworkRequest request(qurl);
+    QNetworkReply *reply = net->get(request);
+
+    // Write network stream buffers progressively as data slices reach the network interface
+    connect(reply, &QNetworkReply::readyRead, this, [reply, localFile]() {
+        if (localFile->isOpen()) {
+            localFile->write(reply->readAll());
+        }
+    });
+
+    // Handle progress indicator monitoring percentages
+    connect(reply, &QNetworkReply::downloadProgress, this, [this](qint64 bytesReceived, qint64 bytesTotal) {
+        if (bytesTotal > 0) {
+            int percentage = static_cast<int>((bytesReceived * 100) / bytesTotal);
+            emit downloadProgress(percentage);
+            qDebug() << "Current download lifecycle progress:" << percentage << "%";
+        }
+    });
+
+    // Close and flush open disk storage objects when download completes
+    connect(reply, &QNetworkReply::finished, this, [this, reply, localFile, fullFilePath]() {
+        reply->deleteLater();
+
+        if (localFile->isOpen()) {
+            localFile->close();
+        }
+        localFile->deleteLater();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Download completed successfully. Saved to:" << fullFilePath;
+        } else {
+            qWarning() << "Download failed:" << reply->errorString();
+            QFile::remove(fullFilePath); // Clean up incomplete file fragments
+            emit errorOccurred("Download failed: " + reply->errorString());
+        }
+    });
+}
 
 //recommandation ko lagi, iniital view when loading the app
 void ArchiveAPI::fetchCurated() {

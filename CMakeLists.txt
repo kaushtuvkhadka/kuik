@@ -44,3 +44,6 @@ target_link_libraries(KUik PRIVATE
     Qt6::Multimedia
     Qt6::Network
 )
+target_compile_definitions(KUik PRIVATE
+    PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}"
+)
