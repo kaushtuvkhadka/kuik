@@ -27,6 +27,7 @@ QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //
 bool ArchiveAPI::Block(const QString &text){
     QString t = text.toLower();
 
+
     if (t.isEmpty())
         return false;
 

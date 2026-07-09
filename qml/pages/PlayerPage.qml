@@ -26,6 +26,7 @@ Item {
 
 
 
+
     //Playback controls haru
     MediaPlayer {
         id: media_player
