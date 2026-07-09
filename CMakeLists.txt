@@ -16,6 +16,7 @@ qt_add_executable(KUik
     src/main.cpp
     src/archiveapi.h
     src/archiveapi.cpp
+    src/constants.h
 )
 
 qt_add_qml_module(KUik
@@ -32,6 +33,7 @@ qt_add_qml_module(KUik
         qml/components/SearchBar.qml
         qml/components/VideoControls.qml
         qml/components/LoadingSpinner.qml
+        SOURCES src/constants.h
 )
 
 target_link_libraries(KUik PRIVATE

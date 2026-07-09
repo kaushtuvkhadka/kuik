@@ -1,4 +1,5 @@
 #include "archiveapi.h"
+#include "constants.h"
 #include <QUrlQuery>
 #include <QUrl>
 #include <QNetworkRequest>
@@ -12,13 +13,11 @@
 //Helpers ------Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
     // Thumbnail create
-    return QString("https://archive.org/services/img/%1").arg(id);
-}
+return ArchiveConstants::kBaseUrl + ArchiveConstants::kPosterImagePath.arg(id);}
 
 
 QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //Direct vidoe file ko url create, .mp4 jasto
-    return QString("https://archive.org/download/%1/%2").arg(id, filename);     //Nwtroking include hunna, direct url xa bhane matra play hunxa
-}
+return ArchiveConstants::kBaseUrl + ArchiveConstants::kDownloadPath.arg(id, filename);}
 
 
 //Blocking words
@@ -85,13 +84,12 @@ ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
 void ArchiveAPI::fetchCurated() {
     emit loadingChanged(true);
 
-    QUrl url("https://archive.org/advancedsearch.php");
-    QUrlQuery q;
+QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kAdvancedSearchPath);
+QUrlQuery q;
 
 
     // Downloads according, movies haru lai fetch garxa, top 10/20 bhanya jasto
-    q.addQueryItem("q",
-        "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");     //adult tag bhako file lai neglect garxa
+   q.addQueryItem("q", ArchiveConstants::kCuratedQueryFilter);    //adult tag bhako file lai neglect garxa
     q.addQueryItem("fl[]", "identifier");
     q.addQueryItem("fl[]", "title");
     q.addQueryItem("fl[]", "year");
@@ -99,7 +97,7 @@ void ArchiveAPI::fetchCurated() {
     q.addQueryItem("fl[]", "description");
     q.addQueryItem("fl[]", "downloads");
     q.addQueryItem("sort[]", "downloads desc");
-    q.addQueryItem("rows",  "30");                //kati ota fetch garne
+    q.addQueryItem("rows",  QString::number(ArchiveConstants::kCuratedResultRows));                //kati ota fetch garne
     q.addQueryItem("page",  "1");
     q.addQueryItem("output","json");
 
@@ -118,13 +116,12 @@ void ArchiveAPI::search(const QString &query) {
     if (query.trimmed().isEmpty()) return;                          //No action
     emit loadingChanged(true);                                      //Load bhairako dekhauxa
 
-    QUrl url("https://archive.org/advancedsearch.php");
-    QUrlQuery q;
+QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kAdvancedSearchPath);
+QUrlQuery q;
 
 
     //Video aaune marta banako
-    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films")      //featured matra dekhauxa
-                       .arg(query.trimmed());
+   QString qStr = ArchiveConstants::kSearchQueryTemplate.arg(query.trimmed());      //featured matra dekhauxa
     q.addQueryItem("q",      qStr);
     q.addQueryItem("fl[]",   "identifier");
     q.addQueryItem("fl[]",   "title");
@@ -133,7 +130,7 @@ void ArchiveAPI::search(const QString &query) {
     q.addQueryItem("fl[]",   "description");
     q.addQueryItem("fl[]",   "downloads");
     q.addQueryItem("sort[]", "downloads desc");
-    q.addQueryItem("rows",   "20");
+q.addQueryItem("rows",   QString::number(ArchiveConstants::kSearchResultRows));
     q.addQueryItem("page",   "1");
     q.addQueryItem("output", "json");
 
@@ -273,8 +270,8 @@ void ArchiveAPI::resolveVideoUrls(QVariantList partials, bool isCurated) {
         QVariantMap movie = v.toMap();
         QString id = movie["identifier"].toString();
 
-        QUrl url(QString("https://archive.org/metadata/%1").arg(id));
-        QNetworkReply *reply = net->get(QNetworkRequest(url));
+QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kMetadataPath.arg(id));
+QNetworkReply *reply = net->get(QNetworkRequest(url));
 
         connect(reply, &QNetworkReply::finished, this,
             [this, reply, movie, resolved, pending, isCurated]() mutable {
