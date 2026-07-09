@@ -17,9 +17,9 @@ class ArchiveAPI : public QObject {
 public:
     explicit ArchiveAPI(QObject *parent = nullptr);
 
+    Q_INVOKABLE void startDownload(QString url);
 
     Q_INVOKABLE void fetchCurated();
-
 
     Q_INVOKABLE void search(const QString &query);
 
@@ -40,6 +40,8 @@ signals:
     void errorOccurred(const QString &message);
 
     void loadingChanged(bool loading);
+
+    void downloadProgress(int percentage);
 
 private slots:
     void onSearchReply(QNetworkReply *reply, bool isCurated);
