@@ -375,6 +375,7 @@ Item {
     }
 
 
+
     component CtrlBtn: Rectangle {
         property string btnIcon: ""
         property bool   active:  false                                  //button select xa ke nai

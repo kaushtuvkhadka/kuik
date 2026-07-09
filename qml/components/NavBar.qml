@@ -18,7 +18,7 @@ Rectangle {
 
     function searchQuerySent(){
         if (search_input.text.trim().length > 0){
-            if(appStack.currentItem.pageName == "searchPage"){
+            if(appStack.currentItem.pageName === "searchPage"){
                 appStack.push("../pages/SearchPage.qml", {
                             appStack: appStack,
                             initialQuery: search_input.text.trim()
