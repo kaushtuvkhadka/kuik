@@ -15,6 +15,16 @@ Rectangle {
     property bool isLoading:      true
     property string errorMsg:     ""
 
+    //********* property = qml keyword for declaring variableess
+    //***********storing the 10(currently) movies in array
+    property var genreMovies:     []
+
+    //**********genre section ma bydefault chai comedy genre select huncha initially
+    property string activeGenre:  "comedy"
+
+    //**************yeslai chai loading spinner sanga link gareko, if its true the spinner loads, if false the movies appear
+    property bool isGenreLoading: false
+
     // ── Connect to C++ backend ─────────────────────────────────────────
     // These Connections blocks wire ArchiveAPI signals to QML handlers.
     // archiveApi is registered as a context property in main.cpp.
@@ -31,20 +41,38 @@ Rectangle {
             recommendations = movies.slice(0, half)
             topPicks        = movies.slice(half)
         }
+//*************************backend le movie archive bata paisake pachi genreloading false(meaning loading huna chodcha) and genremovie vanne list ma add garcha
+        function onGenreResultsReady(movies) {
+            isGenreLoading = false
+            genreMovies = movies
+        }
 
         function onErrorOccurred(message) {
-            isLoading = false
-            errorMsg  = message
+            if (isGenreLoading) {
+                isGenreLoading = false
+            } else {
+                isLoading = false
+                errorMsg  = message
+            }
         }
 
         function onLoadingChanged(loading) {
+            if (isGenreLoading) {
+                // Ignore fullscreen loader during genre switching
+                return
+            }
             isLoading = loading
         }
     }
 
     // Kick off the curated fetch as soon as the page is ready
+
+    //********jaba page fully load huncha tetikhera trigger huncha
     Component.onCompleted: {
         archiveApi.fetchCurated()
+        //*******genre state lai loading rakcha ani comedy movie fetch garna vanera call garcha
+        isGenreLoading = true
+        archiveApi.fetchGenre("comedy")
     }
 
     // ── Navigation helper ──────────────────────────────────────────────
@@ -112,6 +140,8 @@ Rectangle {
                         }
                     }
                 }
+
+
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -335,6 +365,144 @@ Rectangle {
                                     movie_rating: parseFloat(modelData.rating) || 0
                                     poster_url:   modelData.poster_url || ""
                                     onCardClicked: homePage.openDetail(modelData)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //********genre section ko visual ui
+                Column {
+                    width: parent.width
+                    spacing: 16
+                    leftPadding: 32
+
+                    RowLayout {
+                        width: parent.width - 64
+                        spacing: 24
+
+                        Text {
+                            text: "Explore Genres"
+                            color: "#ffffff"
+                            font.pixelSize: 18
+                            font.bold: true
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        //******* genre suboptions (comedy, actiom, drama, horror) vayeko tabs
+                        Row {
+                            spacing: 12
+                            Layout.alignment: Qt.AlignVCenter
+
+                            Repeater { //********loop jasto kaam garcha, tala vayeko sabbai features lai each genre: comedy, action, drama ra horror ma apply garidincha
+                                model: ["Comedy", "Action", "Drama", "Horror"]
+
+                                Rectangle {
+                                    id: genreTab
+                                    width: genreTabText.width + 24 //*******genre word ko length anusar automatically width adjust garcha
+                                    height: 32
+                                    radius: 16
+                                    color: activeGenre === modelData.toLowerCase() //***** if tyo genre tab ko text matches activeGenre string ko text, then colors it to reddish color (highlighted/select) vayeko dekhaucha
+                                           ? "#e50914" 
+                                           : (tabMouseArea.containsMouse ? "#2a2a2a" : "#141414")//*******else highlights greyish on hover and black when not hovered
+                                    border.color: activeGenre === modelData.toLowerCase() ? "transparent" : "#333333"
+                                    border.width: 1
+
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                                    Text {
+                                        id: genreTabText
+                                        anchors.centerIn: parent
+                                        text: modelData
+                                        color: activeGenre === modelData.toLowerCase() ? "#ffffff" : "#aaaaaa"
+                                        font.pixelSize: 13
+                                        font.bold: activeGenre === modelData.toLowerCase()
+                                    }
+
+                                    MouseArea {
+                                        id: tabMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (activeGenre !== modelData.toLowerCase()) {
+                                                activeGenre = modelData.toLowerCase()
+                                                genreMovies = []
+                                                isGenreLoading = true
+                                                archiveApi.fetchGenre(modelData.toLowerCase())
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Horizontal list / scroll view
+                    Item {
+                        width: parent.width - 32
+                        height: 250
+
+                        // Loading spinner for Genre row
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 10
+                            visible: isGenreLoading
+
+                            Row {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 6
+                                Repeater {
+                                    model: 3
+                                    Rectangle {
+                                        width: 8; height: 8; radius: 4
+                                        color: "#e50914"
+                                        SequentialAnimation on opacity {
+                                            loops: Animation.Infinite
+                                            running: isGenreLoading
+                                            PauseAnimation { duration: index * 150 }
+                                            NumberAnimation { to: 1; duration: 250 }
+                                            NumberAnimation { to: 0.2; duration: 250 }
+                                            PauseAnimation { duration: (3 - index) * 150 }
+                                        }
+                                    }
+                                }
+                            }
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "Loading movies..."
+                                color: "#666666"
+                                font.pixelSize: 12
+                            }
+                        }
+
+                        // Empty / No results message
+                        Text {
+                            anchors.centerIn: parent
+                            text: "No movies found in this genre."
+                            color: "#666666"
+                            font.pixelSize: 14
+                            visible: !isGenreLoading && genreMovies.length === 0
+                        }
+
+                        ScrollView {
+                            anchors.fill: parent
+                            visible: !isGenreLoading && genreMovies.length > 0
+                            ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                            clip: true
+
+                            Row {
+                                spacing: 16
+                                Repeater {
+                                    model: genreMovies
+                                    MovieCard {
+                                        movie_title:  modelData.title   || ""
+                                        movie_year:   modelData.year    || ""
+                                        movie_genre:  modelData.genre   || ""
+                                        movie_rating: parseFloat(modelData.rating) || 0
+                                        poster_url:   modelData.poster_url || ""
+                                        onCardClicked: homePage.openDetail(modelData)
+                                    }
                                 }
                             }
                         }
