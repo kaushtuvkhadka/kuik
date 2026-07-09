@@ -20,7 +20,7 @@ QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //
 return ArchiveConstants::kBaseUrl + ArchiveConstants::kDownloadPath.arg(id, filename);}
 
 
-//Blocking words
+//Block garne words lai
 bool ArchiveAPI::Block(const QString &text){
     QString t = text.toLower();
 
@@ -28,11 +28,9 @@ bool ArchiveAPI::Block(const QString &text){
         return false;
 
         //blocked/ignore words haru
-    return t.contains("sex") ||
-           t.contains("sexual") ||
-           t.contains("adult") ||
-           t.contains("nude") ||
-           t.contains("nudist") ||
+    return
+           t.contains("sex") ||  t.contains("sexual") ||
+           t.contains("adult") || t.contains("nude") ||   t.contains("nudist") ||
            t.contains("molester") ||
            t.contains("xxx");
 }
@@ -186,7 +184,7 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
 
     QJsonObject root   = doc.object();
     QJsonObject resp   = root["response"].toObject();
-    QJsonArray  docs   = resp["docs"].toArray();
+    QJsonArray  const docs   = resp["docs"].toArray();
 
 
 
@@ -195,62 +193,67 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         QJsonObject item = v.toObject();
         QString id = item["identifier"].toString();
 
-            if (id.isEmpty()) continue;
+        if (id.isEmpty())
+            continue;
 
-            QString title = item["title"].toString();
+        QString title = item["title"].toString();
 
-            // strig ra array both
-            QString genre;
+        // strig ra array both
+        QString genre;
 
-            QJsonValue subj = item["subject"];
+        QJsonValue subj = item["subject"];
 
-            if (subj.isArray()) {
-                QStringList parts;
-                    for (const auto &s : subj.toArray())
-                        parts << s.toString();
+        if (subj.isArray()) {
+            QStringList parts;
+            for (const auto &s : subj.toArray())
+                parts << s.toString();
 
-                genre = parts.first();
-            }
-            else {
-                genre = subj.toString().split(";").first().trimmed();
-            }
-
-            if (genre.isEmpty()) genre = "Film";
-
-
-            //string ne huna sakxa, array ne
-            QString desc;
-            QJsonValue dv = item["description"];
-            if (dv.isArray()) desc = dv.toArray().first().toString();
-            else              desc = dv.toString();
-
-            // Description 300 character bhanda badhi xa bhane cut gardinxa
-            if (desc.length() > 300) desc = desc.left(300) + "...";
-
-
-
-            //Block/Ignore garxa if blocked word xa bhbane-------------------Print remove kaam bhayepaxi
-            if (Block(title) || Block(genre) || Block(desc)) {
-                int i = 1;
-                qDebug() << "Block  " << i << "\n";
-                i++;
-                continue;
-            }
-
-            QVariantMap m;
-            m["identifier"]  = id;
-            m["title"]       = title;
-            m["year"]        = item["year"].toString();
-            m["genre"]       = genre;
-            m["description"] = desc;
-            m["poster_url"]  = posterUrl(id);
-            m["video_url"]   = "";
-            m["rating"]      = QString::number(
-                                   qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0),
-                                   'f', 1);
-
-            result.append(m);
+            genre = parts.first();
         }
+        else {
+            genre = subj.toString().split(";").first().trimmed();
+        }
+
+        if (genre.isEmpty())
+            genre = "Film";
+
+
+        //string ne huna sakxa, array ne
+        QString desc;
+        QJsonValue dv = item["description"];
+        if (dv.isArray())
+            desc = dv.toArray().first().toString();
+        else
+            desc = dv.toString();
+
+        // Description 300 character bhanda badhi xa bhane cut gardinxa
+        if (desc.length() > 300)
+            desc = desc.left(300) + "...";
+
+
+
+        //Block/Ignore garxa if blocked word xa bhbane------------          ****Print remove kaam bhayepaxi*********
+        if (Block(title) || Block(genre) || Block(desc)) {
+            static int i = 1;
+            qDebug() << "Block  " << i << "\n";
+            i++;
+            continue;
+        }
+
+        QVariantMap m;
+        m["identifier"]  = id;
+        m["title"]       = title;
+        m["year"]        = item["year"].toString();
+        m["genre"]       = genre;
+        m["description"] = desc;
+        m["poster_url"]  = posterUrl(id);
+        m["video_url"]   = "";
+
+        ///Fake rating calculate garne
+        // m["rating"]      = QString::number(
+        //     qMin(9.9, (item["downloads"].toDouble() / 50000.0) * 8.0 + 5.0),'f', 1);
+        result.append(m);
+    }
 
     return result;
 }
