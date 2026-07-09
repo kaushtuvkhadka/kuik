@@ -27,6 +27,7 @@ QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //
 bool ArchiveAPI::Block(const QString &text){
     QString t = text.toLower();
 
+
     if (t.isEmpty())
         return false;
 
@@ -37,7 +38,8 @@ bool ArchiveAPI::Block(const QString &text){
            t.contains("nude") ||
            t.contains("nudist") ||
            t.contains("molester") ||
-           t.contains("xxx");
+           t.contains("xxx") ||
+           t.contains("hentai");
 }
 
 

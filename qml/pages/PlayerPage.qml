@@ -26,6 +26,7 @@ Item {
 
 
 
+
     //Playback controls haru
     MediaPlayer {
         id: media_player
@@ -173,19 +174,21 @@ Item {
                 }
             }
 
-            //Settings ma volume, bahira already xa so paxi remove
-            Column {
-                width: parent.width
-                spacing: 8
-                Text { text: "Volume  " + Math.round(vol_slider.value) + "%"; color: "#aaaaaa"; font.pixelSize: 11 }
 
-                Slider {
-                    id: settings_vol
-                    width: parent.width
-                    from: 0; to: 100; value: vol_slider.value
-                    onValueChanged: vol_slider.value = value
-                }
-            }
+            //Settings ma volume, bahira already xa so paxi remove
+
+            // Column {
+            //     width: parent.width
+            //     spacing: 8
+            //     Text { text: "Volume  " + Math.round(vol_slider.value) + "%"; color: "#aaaaaa"; font.pixelSize: 11 }
+
+            //     Slider {
+            //         id: settings_vol
+            //         width: parent.width
+            //         from: 0; to: 100; value: vol_slider.value
+            //         onValueChanged: vol_slider.value = value
+            //     }
+            // }
         }
     }
 
@@ -241,7 +244,7 @@ Item {
             }
         }
 
-        // ── Bottom gradient + controls ─────────────────────────────────
+        // Bottom Controls
         Rectangle {
             anchors.bottom: parent.bottom
             width: parent.width; height: 110
@@ -296,7 +299,7 @@ Item {
 
                     //Buttons haru
                     CtrlBtn {
-                        btnIcon: media_player.playbackState === MediaPlayer.PlayingState ? "⭕" : "▶"
+                        btnIcon: media_player.playbackState === MediaPlayer.PlayingState ? "■" : "▶"
 
                         onBtnClicked: {
                             if (media_player.playbackState === MediaPlayer.PlayingState)
@@ -306,12 +309,32 @@ Item {
                         }
                     }
 
-                    //10s back
-                    CtrlBtn {
-                        btnIcon: "↺"
-                        onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)            //Math le media cap rakhxa
+
+
+
+                    //Vol button
+                    Text {
+                        text: vol_slider.value === 0 ? "🔇" : vol_slider.value < 50 ? "🔉" : "🔊"
+                        color: "#ffffff";
+                        font.pixelSize: 15;
+                        Layout.alignment: Qt.AlignVCenter;
+                    }
+                    //vol slider
+                    Slider {
+                        id: vol_slider
+                        width: 80; from: 0; to: 100; value: 80                      //80 ma initiate hunxa
+                        Layout.alignment: Qt.AlignVCenter
                     }
 
+
+
+
+
+                    //10s back
+                    CtrlBtn {
+                        btnIcon: "↺"                        //Math le media cap rakhxa
+                        onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)
+                    }
                     //10s aagadi
                     CtrlBtn {
                         btnIcon: "↻"
@@ -320,29 +343,21 @@ Item {
 
 
 
+
                     Item { Layout.fillWidth: true }                         //Khali space fill
 
 
-                    //Vol button
-                    Text {
-                        text: vol_slider.value === 0 ? "🔇" : vol_slider.value < 50 ? "🔉" : "🔊"
-                        color: "#ffffff"; font.pixelSize: 15
-                        Layout.alignment: Qt.AlignVCenter
-                    }
 
-                    //vol slider
-                    Slider {
-                        id: vol_slider
-                        width: 80; from: 0; to: 100; value: 80                      //80 ma initiate hunxa
-                        Layout.alignment: Qt.AlignVCenter
-                    }
 
                     //settings
                     CtrlBtn {
-                        btnIcon: "⚙"
+                        btnIcon: "☰"
                         active: settingsOpen                                //true flase
                         onBtnClicked: settingsOpen = !settingsOpen
                     }
+
+
+
 
                     //fullscreen
                     CtrlBtn {
