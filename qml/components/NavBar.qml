@@ -16,6 +16,24 @@ Rectangle {
         search_input.text = ""
     }
 
+    function searchQuerySent(){
+        if (search_input.text.trim().length > 0){
+            if(appStack.currentItem.pageName == "searchPage"){
+                appStack.push("../pages/SearchPage.qml", {
+                            appStack: appStack,
+                            initialQuery: search_input.text.trim()
+                        })
+            }
+        }
+
+
+        console.log("Current page:", appStack.currentItem.objectName)
+
+        console.log(appStack.currentItem.pageName)
+
+        navBar.searchRequested(search_input.text.trim())
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 24
@@ -62,11 +80,9 @@ Rectangle {
                     }
 
                     Keys.onReturnPressed: {
-                        if (text.trim().length > 0){
-                            // if(appStack.currentItem.pageName == "searchPage"){
-                            // searchPage.appStack.push("../pages/SearchPage.qml")
-                        // }
-                        }
+
+                        searchQuerySent()
+
                     }
                 }
 
@@ -79,26 +95,11 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            if (search_input.text.trim().length > 0){
-                                if(appStack.currentItem.pageName == "searchPage"){
-                                    appStack.push("../pages/SearchPage.qml", {
-                                                appStack: appStack,
-                                                initialQuery: search_input.text.trim()
-                                            })
-                                }
 
-                                // appStack.push("../pages/SearchPage.qml", {
-                                //             appStack: appStack,
-                                //             initialQuery: search_input.text.trim()
-                                //         })
-                                console.log("Current page:", appStack.currentItem.objectName)
-
-                                console.log(appStack.currentItem.pageName)
-
-                                navBar.searchRequested(search_input.text.trim())
+                            searchQuerySent()
 
 
-                            }
+
 
                         }
                     }

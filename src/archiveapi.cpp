@@ -126,7 +126,8 @@ void ArchiveAPI::search(const QString &query) {
 
 
     //Video aaune marta banako
-    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films")      //featured matra dekhauxa
+    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films")   //featured matra dekhauxa
+    // QString qStr = QString("(%1) AND mediatype:movies")
                        .arg(query.trimmed());
     q.addQueryItem("q",      qStr);
     q.addQueryItem("fl[]",   "identifier");
