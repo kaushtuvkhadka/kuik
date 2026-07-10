@@ -16,6 +16,8 @@ qt_add_executable(KUik
     src/main.cpp
     src/archiveapi.h
     src/archiveapi.cpp
+    src/accountmanager.h
+    src/accountmanager.cpp
 )
 
 qt_add_qml_module(KUik
@@ -27,6 +29,8 @@ qt_add_qml_module(KUik
         qml/pages/DetailPage.qml
         qml/pages/PlayerPage.qml
         qml/pages/SearchPage.qml
+        qml/pages/Signup.qml
+        qml/pages/Login.qml
         qml/components/NavBar.qml
         qml/components/MovieCard.qml
         qml/components/SearchBar.qml

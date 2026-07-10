@@ -8,7 +8,6 @@ Rectangle {
     color: "#1a1a1a"
 
     signal searchRequested(string query)
-    signal menuClicked()
 
     // Allow parent to clear the search input (e.g. when navigating back)
     function clearSearch() {
@@ -83,29 +82,6 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            width: 34
-            height: 34
-            radius: 6
-            color: menu_area.containsMouse ? "#2a2a2a" : "transparent"
-
-            Column {
-                anchors.centerIn: parent
-                spacing: 5
-                Repeater {
-                    model: 3
-                    Rectangle { width: 18; height: 2; radius: 1; color: "#ffffff" }
-                }
-            }
-
-            MouseArea {
-                id: menu_area
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: navBar.menuClicked()
-            }
-        }
     }
 
     Rectangle {
