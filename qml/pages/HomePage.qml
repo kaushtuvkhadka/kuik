@@ -19,10 +19,12 @@ Rectangle {
     //***********storing the 10(currently) movies in array
     property var genreMovies:     []
 
-    //**********genre section ma bydefault chai comedy genre select huncha initially
+    //**********genre section ma bydefault chai comedy genre select 
+    //huncha initially
     property string activeGenre:  "comedy"
 
-    //**************yeslai chai loading spinner sanga link gareko, if its true the spinner loads, if false the movies appear
+    //**************yeslai chai loading spinner sanga link gareko, 
+    //if its true the spinner loads, if false the movies appear
     property bool isGenreLoading: false
 
     // ── Connect to C++ backend ─────────────────────────────────────────
@@ -41,7 +43,9 @@ Rectangle {
             recommendations = movies.slice(0, half)
             topPicks        = movies.slice(half)
         }
-//*************************backend le movie archive bata paisake pachi genreloading false(meaning loading huna chodcha) and genremovie vanne list ma add garcha
+        //*************************backend le movie archive bata paisake pachi 
+        //genreloading false(meaning loading huna chodcha) and genremovie vanne 
+        //list ma add garcha
         function onGenreResultsReady(movies) {
             isGenreLoading = false
             genreMovies = movies
@@ -70,7 +74,8 @@ Rectangle {
     //********jaba page fully load huncha tetikhera trigger huncha
     Component.onCompleted: {
         archiveApi.fetchCurated()
-        //*******genre state lai loading rakcha ani comedy movie fetch garna vanera call garcha
+        //*******genre state lai loading rakcha ani comedy movie 
+        //fetch garna vanera call garcha
         isGenreLoading = true
         archiveApi.fetchGenre("comedy")
     }
@@ -107,8 +112,7 @@ Rectangle {
                 var p = c.createObject(null, { appStack: homePage.appStack, initialQuery: query })
                 homePage.appStack.push(p)
             }
-            onMenuClicked: {
-                }
+            onMenuClicked: { /* future settings */ }
         }
 
         // ── Loading state ──────────────────────────────────────────────
@@ -141,8 +145,6 @@ Rectangle {
                         }
                     }
                 }
-
-
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -349,24 +351,96 @@ Rectangle {
                         font.bold: true
                     }
 
-                    ScrollView {
-                        width: parent.width - 32
+                    /*============left/right arrow buttons le horizontal scroll bar lai replace gareko
+                      for better ui and ux
+                    */
+                    Item {
+                        id: recRow
+                        width: parent.width - 32 //since 32 leftpadding diyeko cha
                         height: 250
-                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
-                        clip: true
+                        //========clip gareko thiyena bhane ekkai choti ma sabbai movies lai draw garera rakhthyo, 
+                        //clip gareko vayera limited lai matra draw garcha
+                        clip: true 
 
-                        Row {
-                            spacing: 16
-                            Repeater {
-                                model: recommendations
-                                MovieCard {
-                                    movie_title:  modelData.title   || ""
-                                    movie_year:   modelData.year    || ""
-                                    movie_genre:  modelData.genre   || ""
-                                    movie_rating: parseFloat(modelData.rating) || 0
-                                    poster_url:   modelData.poster_url || ""
-                                    onCardClicked: homePage.openDetail(modelData)
-                                }
+                        ListView {
+                            id: recList
+                            anchors.fill: parent
+                            orientation: ListView.Horizontal
+                            spacing: 16 //=======movie cards bich ko spacing
+                            interactive: true //======mouse le drag garera pani move garna milcha
+                            clip: true
+                            model: recommendations
+                            //=====delegate le each component of the list kasto huncha bhanera moviecards define garcha
+                            delegate: MovieCard { 
+                                movie_title:  modelData.title   || "" //===== if title else null 
+                                movie_year:   modelData.year    || ""
+                                movie_genre:  modelData.genre   || ""
+                                movie_rating: parseFloat(modelData.rating) || 0
+                                poster_url:   modelData.poster_url || ""
+                                onCardClicked: homePage.openDetail(modelData)
+                            }
+                            //contentX (horizontal scroll x coords) lai instantly hoina 
+                            //instead animated transition banayera value change garcha
+                            Behavior on contentX { 
+                                //===== 300ms time laune, start slow and accelerate in the middle
+                                NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } 
+                            }
+                        }
+
+                        Rectangle {
+                            width: 36; height: parent.height
+                            anchors.left: parent.left
+                            //====== when we are at the first movie or when horizontal scroll is 0 tetikhera < lai hide garne
+                            visible: recList.contentX > 0 
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#cc0f0f0f" }
+                                GradientStop { position: 1.0; color: "transparent" }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: "❮"
+                                color: recLeftMouse.containsMouse ? "#ffffff" : "#aaaaaa" //====== mouse hover garda white else grey
+                                font.pixelSize: 20; font.bold: true
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                            }
+                            MouseArea {
+                                id: recLeftMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                //===== 1 movie card = 160px, spacing = 16 px total 176 pixel, so 176 pixel left move garcha 
+                                //meaning euta bata arko moviecard ma jancha, and if value -ve aayo bhane instead 0 set garcha
+                                onClicked: recList.contentX = Math.max(0, recList.contentX - 176) 
+                            }
+                        }
+
+                        Rectangle {
+                            width: 36; height: parent.height
+                            anchors.right: parent.right
+                            //====list ko end ma gayepachi > lai hide garcha (contentwidth = width of all item in list, 
+                            //width = width of content visible in screen
+                            visible: recList.contentX < recList.contentWidth - recList.width 
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "transparent" }
+                                GradientStop { position: 1.0; color: "#cc0f0f0f" }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: "❯"
+                                color: recRightMouse.containsMouse ? "#ffffff" : "#aaaaaa"
+                                font.pixelSize: 20; font.bold: true
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                            }
+                            MouseArea {
+                                id: recRightMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                //===== if content last element ma cha bhane contentwidth - width = 0 , and contentX + 176 = greater so, 
+                                //min = 0 hence move gardaina, aru case ma contenX + 176 < contentwidth - width so 176 right move garcha
+                                onClicked: recList.contentX = Math.min(recList.contentWidth - recList.width, recList.contentX + 176)
                             }
                         }
                     }
@@ -404,7 +478,7 @@ Rectangle {
                                     height: 32
                                     radius: 16
                                     color: activeGenre === modelData.toLowerCase() //***** if tyo genre tab ko text matches activeGenre string ko text, then colors it to reddish color (highlighted/select) vayeko dekhaucha
-                                           ? "#e50914" 
+                                           ? "#e50914"
                                            : (tabMouseArea.containsMouse ? "#2a2a2a" : "#141414")//*******else highlights greyish on hover and black when not hovered
                                     border.color: activeGenre === modelData.toLowerCase() ? "transparent" : "#333333"
                                     border.width: 1
@@ -486,24 +560,96 @@ Rectangle {
                             visible: !isGenreLoading && genreMovies.length === 0
                         }
 
-                        ScrollView {
+                        /*============left/right arrow buttons le horizontal scroll bar lai replace gareko
+                          for better ui and ux
+                        */
+                        Item {
+                            id: genreRow
                             anchors.fill: parent
                             visible: !isGenreLoading && genreMovies.length > 0
-                            ScrollBar.vertical.policy: ScrollBar.AlwaysOff
-                            clip: true
+                            //========clip gareko thiyena bhane ekkai choti ma sabbai movies lai draw garera rakhthyo, 
+                            //clip gareko vayera limited lai matra draw garcha
+                            clip: true 
 
-                            Row {
-                                spacing: 16
-                                Repeater {
-                                    model: genreMovies
-                                    MovieCard {
-                                        movie_title:  modelData.title   || ""
-                                        movie_year:   modelData.year    || ""
-                                        movie_genre:  modelData.genre   || ""
-                                        movie_rating: parseFloat(modelData.rating) || 0
-                                        poster_url:   modelData.poster_url || ""
-                                        onCardClicked: homePage.openDetail(modelData)
-                                    }
+                            ListView {
+                                id: genreList
+                                anchors.fill: parent
+                                orientation: ListView.Horizontal
+                                spacing: 16 //=======movie cards bich ko spacing
+                                interactive: true //======mouse le drag garera pani move garna milcha
+                                clip: true
+                                model: genreMovies
+                                //=====delegate le each component of the list kasto huncha bhanera moviecards define garcha
+                                delegate: MovieCard { 
+                                    movie_title:  modelData.title   || "" //===== if title else null 
+                                    movie_year:   modelData.year    || ""
+                                    movie_genre:  modelData.genre   || ""
+                                    movie_rating: parseFloat(modelData.rating) || 0
+                                    poster_url:   modelData.poster_url || ""
+                                    onCardClicked: homePage.openDetail(modelData)
+                                }
+                                //contentX (horizontal scroll x coords) lai instantly hoina 
+                                //instead animated transition banayera value change garcha
+                                Behavior on contentX { 
+                                    //===== 300ms time laune, start slow and accelerate in the middle
+                                    NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } 
+                                }
+                            }
+
+                            Rectangle {
+                                width: 36; height: parent.height
+                                anchors.left: parent.left
+                                //====== when we are at the first movie or when horizontal scroll is 0 tetikhera < lai hide garne
+                                visible: genreList.contentX > 0 
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0.0; color: "#cc0f0f0f" }
+                                    GradientStop { position: 1.0; color: "transparent" }
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "❮"
+                                    color: genreLeftMouse.containsMouse ? "#ffffff" : "#aaaaaa" //====== mouse hover garda white else grey
+                                    font.pixelSize: 20; font.bold: true
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                MouseArea {
+                                    id: genreLeftMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    //===== 1 movie card = 160px, spacing = 16 px total 176 pixel, so 176 pixel left move garcha 
+                                    //meaning euta bata arko moviecard ma jancha, and if value -ve aayo bhane instead 0 set garcha
+                                    onClicked: genreList.contentX = Math.max(0, genreList.contentX - 176) 
+                                }
+                            }
+
+                            Rectangle {
+                                width: 36; height: parent.height
+                                anchors.right: parent.right
+                                //====list ko end ma gayepachi > lai hide garcha (contentwidth = width of all item in list, 
+                                //width = width of content visible in screen
+                                visible: genreList.contentX < genreList.contentWidth - genreList.width 
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0.0; color: "transparent" }
+                                    GradientStop { position: 1.0; color: "#cc0f0f0f" }
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "❯"
+                                    color: genreRightMouse.containsMouse ? "#ffffff" : "#aaaaaa"
+                                    font.pixelSize: 20; font.bold: true
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                MouseArea {
+                                    id: genreRightMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    //===== if content last element ma cha bhane contentwidth - width = 0 , and contentX + 176 = greater so, 
+                                    //min = 0 hence move gardaina, aru case ma contenX + 176 < contentwidth - width so 176 right move garcha
+                                    onClicked: genreList.contentX = Math.min(genreList.contentWidth - genreList.width, genreList.contentX + 176)
                                 }
                             }
                         }
@@ -523,24 +669,96 @@ Rectangle {
                         font.bold: true
                     }
 
-                    ScrollView {
+                    /*============left/right arrow buttons le horizontal scroll bar lai replace gareko
+                      for better ui and ux
+                    */
+                    Item {
+                        id: topPicksRow
                         width: parent.width - 32
                         height: 250
-                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
-                        clip: true
+                        //========clip gareko thiyena bhane ekkai choti ma sabbai movies lai draw garera rakhthyo, 
+                        //clip gareko vayera limited lai matra draw garcha
+                        clip: true 
 
-                        Row {
-                            spacing: 16
-                            Repeater {
-                                model: topPicks
-                                MovieCard {
-                                    movie_title:  modelData.title   || ""
-                                    movie_year:   modelData.year    || ""
-                                    movie_genre:  modelData.genre   || ""
-                                    movie_rating: parseFloat(modelData.rating) || 0
-                                    poster_url:   modelData.poster_url || ""
-                                    onCardClicked: homePage.openDetail(modelData)
-                                }
+                        ListView {
+                            id: topPicksList
+                            anchors.fill: parent
+                            orientation: ListView.Horizontal
+                            spacing: 16 //=======movie cards bich ko spacing
+                            interactive: true //======mouse le drag garera pani move garna milcha
+                            clip: true
+                            model: topPicks
+                            //=====delegate le each component of the list kasto huncha bhanera moviecards define garcha
+                            delegate: MovieCard { 
+                                movie_title:  modelData.title   || "" //===== if title else null 
+                                movie_year:   modelData.year    || ""
+                                movie_genre:  modelData.genre   || ""
+                                movie_rating: parseFloat(modelData.rating) || 0
+                                poster_url:   modelData.poster_url || ""
+                                onCardClicked: homePage.openDetail(modelData)
+                            }
+                            //contentX (horizontal scroll x coords) lai instantly hoina 
+                            //instead animated transition banayera value change garcha
+                            Behavior on contentX { 
+                                //===== 300ms time laune, start slow and accelerate in the middle
+                                NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } 
+                            }
+                        }
+
+                        Rectangle {
+                            width: 36; height: parent.height
+                            anchors.left: parent.left
+                            //====== when we are at the first movie or when horizontal scroll is 0 tetikhera < lai hide garne
+                            visible: topPicksList.contentX > 0 
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#cc0f0f0f" }
+                                GradientStop { position: 1.0; color: "transparent" }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: "❮"
+                                color: topLeftMouse.containsMouse ? "#ffffff" : "#aaaaaa" //====== mouse hover garda white else grey
+                                font.pixelSize: 20; font.bold: true
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                            }
+                            MouseArea {
+                                id: topLeftMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                //===== 1 movie card = 160px, spacing = 16 px total 176 pixel, so 176 pixel left move garcha 
+                                //meaning euta bata arko moviecard ma jancha, and if value -ve aayo bhane instead 0 set garcha
+                                onClicked: topPicksList.contentX = Math.max(0, topPicksList.contentX - 176) 
+                            }
+                        }
+
+                        Rectangle {
+                            width: 36; height: parent.height
+                            anchors.right: parent.right
+                            //====list ko end ma gayepachi > lai hide garcha (contentwidth = width of all item in list, 
+                            //width = width of content visible in screen
+                            visible: topPicksList.contentX < topPicksList.contentWidth - topPicksList.width 
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "transparent" }
+                                GradientStop { position: 1.0; color: "#cc0f0f0f" }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: "❯"
+                                color: topRightMouse.containsMouse ? "#ffffff" : "#aaaaaa"
+                                font.pixelSize: 20; font.bold: true
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                            }
+                            MouseArea {
+                                id: topRightMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                //===== if content last element ma cha bhane contentwidth - width = 0 , and contentX + 176 = greater so, 
+                                //min = 0 hence move gardaina, aru case ma contenX + 176 < contentwidth - width so 176 right move garcha
+                                onClicked: topPicksList.contentX = Math.min(topPicksList.contentWidth - topPicksList.width, topPicksList.contentX + 176)
                             }
                         }
                     }
