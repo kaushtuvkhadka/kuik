@@ -1,4 +1,5 @@
 #include "archiveapi.h"
+#include "constants.h"
 #include <QUrlQuery>
 #include <QUrl>
 #include <QNetworkRequest>
@@ -15,13 +16,15 @@
 //Archive ko resource bata url lai build garxa,  These 2
 QString ArchiveAPI::posterUrl(const QString &id) {
     // Thumbnail create
-    return QString("https://archive.org/services/img/%1").arg(id);
+    return (ArchiveConstants::kBaseUrl + ArchiveConstants::kPosterImagePath).arg(id);
 }
 
 
 
-QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //Direct vidoe file ko url create, .mp4 jasto
-    return QString("https://archive.org/download/%1/%2").arg(id, filename);     //Nwtroking include hunna, direct url xa bhane matra play hunxa
+//Direct vidoe file ko url create, .mp4 jasto
+QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   
+    //Nwtroking include hunna, direct url xa bhane matra play hunxa
+    return (ArchiveConstants::kBaseUrl + ArchiveConstants::kDownloadPath).arg(id, filename);     
 }
 
 
@@ -126,7 +129,8 @@ void ArchiveAPI::startDownload(QString url) {
     QNetworkRequest request(qurl);
     QNetworkReply *reply = net->get(request);
 
-    // Write network stream buffers progressively as data slices reach the network interface
+    // Write network stream buffers progressively as data slices 
+    // reach the network interface
     connect(reply, &QNetworkReply::readyRead, this, [reply, localFile]() {
         if (localFile->isOpen()) {
             localFile->write(reply->readAll());
@@ -165,13 +169,13 @@ void ArchiveAPI::startDownload(QString url) {
 void ArchiveAPI::fetchCurated() {
     emit loadingChanged(true);
 
-    QUrl url("https://archive.org/advancedsearch.php");
+    QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kAdvancedSearchPath);
     QUrlQuery q;
 
 
     // Downloads according, movies haru lai fetch garxa, top 10/20 bhanya jasto
     q.addQueryItem("q",
-                   "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");     //adult tag bhako file lai neglect garxa
+                   ArchiveConstants::kCuratedQueryFilter);     //adult tag bhako file lai neglect garxa
     q.addQueryItem("fl[]", "identifier");
     q.addQueryItem("fl[]", "title");
     q.addQueryItem("fl[]", "year");
@@ -179,7 +183,7 @@ void ArchiveAPI::fetchCurated() {
     q.addQueryItem("fl[]", "description");
     q.addQueryItem("fl[]", "downloads");
     q.addQueryItem("sort[]", "downloads desc");
-    q.addQueryItem("rows",  "30");                //kati ota fetch garne
+    q.addQueryItem("rows",  QString::number(ArchiveConstants::kCuratedResultRows));                //kati ota fetch garne
     q.addQueryItem("page",  "1");
     q.addQueryItem("output","json");
     // qDebug() << " Recommendation";
@@ -200,13 +204,12 @@ void ArchiveAPI::search(const QString &query) {
         return;                          //No action
     emit loadingChanged(true);                                      //Load bhairako dekhauxa
 
-    QUrl url("https://archive.org/advancedsearch.php");
+    QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kAdvancedSearchPath);
     QUrlQuery q;
 
 
     //Video aaune marta banako
-    QString qStr = QString("(%1) AND mediatype:movies AND collection:feature_films")   //featured matra dekhauxa
-                       // QString qStr = QString("(%1) AND mediatype:movies")
+    QString qStr = ArchiveConstants::kSearchQueryTemplate   //featured matra dekhauxa
                        .arg(query.trimmed());
 
     q.addQueryItem("q",      qStr);
@@ -217,7 +220,7 @@ void ArchiveAPI::search(const QString &query) {
     q.addQueryItem("fl[]",   "description");
     q.addQueryItem("fl[]",   "downloads");
     q.addQueryItem("sort[]", "downloads desc");
-    q.addQueryItem("rows",   "20");
+    q.addQueryItem("rows",   QString::number(ArchiveConstants::kSearchResultRows));
     q.addQueryItem("page",   "1");
     q.addQueryItem("output", "json");
 
@@ -276,37 +279,47 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
 
 
 
-//******qml ma archiveApi.fetchGenre("<genre>") call huncha upon cliking that genre button, it sends the genre here
+//******qml ma archiveApi.fetchGenre("<genre>") call huncha 
+//upon cliking that genre button, it sends the genre here
 void ArchiveAPI::fetchGenre(const QString &genre) {
     if (genre.trimmed().isEmpty())
         return;  //*****if empty stops execution
 
-    emit loadingChanged(true); //loading signal send garcha so ui knows to dispaly loading animation
+    //loading signal send garcha so ui knows to dispaly loading animation
+    emit loadingChanged(true); 
 
 
-    QUrl url("https://archive.org/advancedsearch.php");
-    QUrlQuery q; //******* for setting values that go after https://archive.org/advancedsearch.php
+    QUrl url(ArchiveConstants::kBaseUrl + ArchiveConstants::kAdvancedSearchPath);
+    //******* for setting values that go after https://archive.org/advancedsearch.php
+    QUrlQuery q; 
 
 
 
     //***** -subject: adult le chai adult content lai filter garcha
     QString qStr = QString("subject:(%1) AND mediatype:movies AND collection:feature_films AND -subject:\"adult\"")
-                       .arg(genre.trimmed().toLower()); //********** (%1) ko thau ma chai genre lai rakhidincha (%1 = placeholder)
+                       .arg(genre.trimmed().toLower()); 
+    //********** (%1) ko thau ma chai genre lai rakhidincha (%1 = placeholder)
     q.addQueryItem("q",      qStr);
-    q.addQueryItem("fl[]",   "identifier");//***** fl = field list, yesle chai server lai yo yo chai pathaunu vanera specify garcha
+    //***** fl = field list, yesle chai server lai yo yo chai pathaunu vanera specify garcha
+    q.addQueryItem("fl[]",   "identifier");
     q.addQueryItem("fl[]",   "title");
     q.addQueryItem("fl[]",   "year");
     q.addQueryItem("fl[]",   "subject");
     q.addQueryItem("fl[]",   "description");
     q.addQueryItem("fl[]",   "downloads");
-    q.addQueryItem("sort[]", "downloads desc"); //****** sort the result by downloads = popular
-    q.addQueryItem("rows",   "15"); //******** only first 15 matches dinu vanera magne
+    //****** sort the result by downloads = popular
+    q.addQueryItem("sort[]", "downloads desc"); 
+    //******** only first 15 matches dinu vanera magne
+    q.addQueryItem("rows",   "15"); 
     //only use 10 for now, baki 5 as backups, working video format xaina bhane
 
-    q.addQueryItem("page",   "1"); //******* first page matra herne
-    q.addQueryItem("output", "json");//****** output chai json format ma mageko
+    //******* first page matra herne
+    q.addQueryItem("page",   "1"); 
+    //****** output chai json format ma mageko
+    q.addQueryItem("output", "json");
 
-    url.setQuery(q); //** aghi ko base url ma sabbai query lai append garcha
+    //** aghi ko base url ma sabbai query lai append garcha
+    url.setQuery(q); 
 
     QNetworkReply *reply = net->get(QNetworkRequest(url));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
@@ -316,16 +329,20 @@ void ArchiveAPI::fetchGenre(const QString &genre) {
 
 
 void ArchiveAPI::onGenreReply(QNetworkReply *reply) {
-    reply->deleteLater();//*****memory leak avoid garna reply lai delete garcha from ram as soon as the function finishes
+    //*****memory leak avoid garna reply lai delete garcha from ram as soon as the function finishes
+    reply->deleteLater();
 
-    if (reply->error() != QNetworkReply::NoError) { //****** if connection timed out load garcha ani error message send garcha
+    if (reply->error() != QNetworkReply::NoError) { 
+        //****** if connection timed out load garcha ani error message send garcha
         emit loadingChanged(false);
         emit errorOccurred("Network error: " + reply->errorString());
         return;
     }
 
-    QByteArray data = reply->readAll(); //**** data vanne variable ma sabbai returned info (as text byte) lai store garcha
-    QJsonDocument doc = QJsonDocument::fromJson(data);//raw text lai json structure ma convert garcha
+    //**** data vanne variable ma sabbai returned info (as text byte) lai store garcha
+    QByteArray data = reply->readAll(); 
+    //raw text lai json structure ma convert garcha
+    QJsonDocument doc = QJsonDocument::fromJson(data);
 
     if (doc.isNull()) { //**** if kei pani return ayena archive bata
         emit loadingChanged(false);
@@ -333,7 +350,8 @@ void ArchiveAPI::onGenreReply(QNetworkReply *reply) {
         return;
     }
 
-    QVariantList partials = parseSearchResponse(doc);//*******json ko formatting clean garcha ani neat list jasto banaucha
+    //*******json ko formatting clean garcha ani neat list jasto banaucha
+    QVariantList partials = parseSearchResponse(doc);
 
     if (partials.isEmpty()) {
         emit loadingChanged(false);
@@ -387,7 +405,8 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
 
 
 
-        //Block/Ignore garxa if blocked word xa bhbane----------               ***** Print remove kaam bhayepaxi***********
+        //Block/Ignore garxa if blocked word xa bhbane----------               
+        //***** Print remove kaam bhayepaxi***********
         if (Block(title) || Block(genre) || Block(desc)) {
             static int i = 1;
             qDebug() << "Block  " << i << "\n";
@@ -424,18 +443,24 @@ void ArchiveAPI::resolveVideoUrls(QVariantList partials, RequestType requestType
     pendingResolutions = total; //*******partials (metadata ko size)
 
 
-    auto resolved = std::make_shared<QVariantList>();//****list that will collect movies when tiniharuko url is found
-    auto pending  = std::make_shared<int>(total);//****** counter, jun start huncha at total no of movies and counts down to 0
+    //****list that will collect movies when tiniharuko url is found
+    auto resolved = std::make_shared<QVariantList>();
+    //****** counter, jun start huncha at total no of movies and counts down to 0
+    auto pending  = std::make_shared<int>(total);
 
-    for (const QVariant &v : partials) {//*****loop chalaucha for each movie to find its video file
+    //*****loop chalaucha for each movie to find its video file
+    for (const QVariant &v : partials) {
         QVariantMap movie = v.toMap();
-        QString id = movie["identifier"].toString(); //***** archive ma each movie ko aafnai identifier huncha teslai liyera generic string ma convert garcha
+        //***** archive ma each movie ko aafnai identifier huncha teslai liyera generic string ma convert garcha
+        QString id = movie["identifier"].toString(); 
 
-        QUrl url(QString("https://archive.org/metadata/%1").arg(id));//*****%1 ko thau ma aaba movie ko identifier jancha
+        //*****%1 ko thau ma aaba movie ko identifier jancha
+        QUrl url((ArchiveConstants::kBaseUrl + ArchiveConstants::kMetadataPath).arg(id));
         QNetworkReply *reply = net->get(QNetworkRequest(url));
 
         connect(reply, &QNetworkReply::finished, this,
-                [this, reply, movie, resolved, pending, requestType]() mutable { //lambda function
+                //lambda function
+                [this, reply, movie, resolved, pending, requestType]() mutable { 
                     reply->deleteLater();
 
                     if (reply->error() == QNetworkReply::NoError) {
