@@ -69,11 +69,29 @@ Rectangle {
         }
     }
 
-    // Kick off the curated fetch as soon as the page is ready
+    // Called by Main.qml if movie data was already fetched in advance
+    // (while the user was busy on Signup/Login). Skips a second fetch.
+    function setPreloadedMovies(movies) {
+        isLoading = false
+        errorMsg  = ""
+        var half = Math.ceil(movies.length / 2)
+        recommendations = movies.slice(0, half)
+        topPicks        = movies.slice(half)
+    }
 
+    // Called by Main.qml only if NO data was preloaded yet —
+    // i.e. this is a normal fresh fetch, same as before.
+    function startFetch() {
+        archiveApi.fetchCurated()
+    }
+    // NOTE: we removed the old Component.onCompleted fetch here.
+    // Main.qml now decides whether to call setPreloadedMovies() or
+    // startFetch() — see the Loader.onLoaded block in Main.qml
+
+    // Kick off the curated fetch as soon as the page is ready
     //********jaba page fully load huncha tetikhera trigger huncha
     Component.onCompleted: {
-        archiveApi.fetchCurated()
+        //archiveApi.fetchCurated()-removed
         //*******genre state lai loading rakcha ani comedy movie 
         //fetch garna vanera call garcha
         isGenreLoading = true

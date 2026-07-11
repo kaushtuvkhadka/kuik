@@ -17,6 +17,8 @@ qt_add_executable(KUik
     src/archiveapi.h
     src/archiveapi.cpp
     src/constants.h
+    src/accountmanager.h
+    src/accountmanager.cpp
 )
 
 qt_add_qml_module(KUik
@@ -24,6 +26,8 @@ qt_add_qml_module(KUik
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+        qml/pages/Signup.qml
+        qml/pages/Login.qml
         qml/pages/HomePage.qml
         qml/pages/DetailPage.qml
         qml/pages/PlayerPage.qml
