@@ -54,11 +54,13 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
         QString fmt  = f["format"].toString().toLower();
         QString lname = name.toLower();
 
-        if (!lname.endsWith(".mp4")) continue;
+        if (!lname.endsWith(".mp4"))
+            continue;
 
 
         // Thuloooooooo vid lai skip garxa
-        if (lname.contains("orig")) continue;
+        if (lname.contains("orig"))
+            continue;
 
         if (lname.contains("512kb") || lname.contains("512") ) {
             best512 = name;
@@ -75,7 +77,8 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
                      : !bestMp4.isEmpty() ? bestMp4
                                           : bestAny;
 
-    if (chosen.isEmpty()) return QString();
+    if (chosen.isEmpty())
+        return QString();
     return streamUrl(id, chosen);                           // actual streaming URL build garxa
 }
 
@@ -83,6 +86,7 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
 //Http request garne, need to check
 ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
     net = new QNetworkAccessManager(this);
+    net->setTransferTimeout(20000);                                 //Server lai respond time cap, milisec
 }
 
 
@@ -162,7 +166,7 @@ void ArchiveAPI::search(const QString &query) {
 
 
 
-//Search function call, start point
+//Search function call, Start point
 void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
     reply->deleteLater();
     qDebug() << "\nMain call/initiate";
@@ -195,8 +199,12 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
 
     if (partials.isEmpty()) {
         emit loadingChanged(false);
-        if (isCurated) emit curatedReady({});
-        else           emit searchResultsReady({});
+
+        if (isCurated)
+            emit curatedReady({});
+        else
+            emit searchResultsReady({});
+
         return;
     }
 
@@ -292,7 +300,8 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
     for (const QJsonValue &v : docs) {
         QJsonObject item = v.toObject();
         QString id = item["identifier"].toString();
-        if (id.isEmpty()) continue;
+        if (id.isEmpty())
+            continue;
 
         QString title = item["title"].toString();
 
@@ -307,17 +316,21 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         } else {
             genre = subj.toString().split(";").first().trimmed();
         }
-        if (genre.isEmpty()) genre = "Film";
+        if (genre.isEmpty())
+            genre = "Film";
 
 
         //string ne huna sakxa, array ne
         QString desc;
         QJsonValue dv = item["description"];
-        if (dv.isArray()) desc = dv.toArray().first().toString();
-        else              desc = dv.toString();
+        if (dv.isArray())
+            desc = dv.toArray().first().toString();
+        else
+            desc = dv.toString();
 
         // Description 300 character bhanda badhi xa bhane cut gardinxa
-        if (desc.length() > 300) desc = desc.left(300) + "...";
+        if (desc.length() > 300)
+            desc = desc.left(300) + "...";
 
 
 
@@ -393,9 +406,11 @@ void ArchiveAPI::resolveVideoUrls(QVariantList partials, RequestType requestType
                         emit loadingChanged(false);
                         if (requestType == CuratedRequest) {
                             emit curatedReady(*resolved);
-                        } else if (requestType == SearchRequest) {
+                        }
+                        else if (requestType == SearchRequest) {
                             emit searchResultsReady(*resolved);
-                        } else if (requestType == GenreRequest) {
+                        }
+                        else if (requestType == GenreRequest) {
                             //******10 ota movie lai matra liyeko
                             QVariantList finalResults;
                             for (int i = 0; i < resolved->size() && i < 10; ++i) {
