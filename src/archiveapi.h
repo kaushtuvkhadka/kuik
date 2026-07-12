@@ -34,7 +34,7 @@ signals:
 
     void searchResultsReady(QVariantList movies);
 
-//***********************jaba backend le movie fetch garisakcha yesle signal pathaucha homepage.qml ko connection ma bhayeko function ma
+//*******jaba backend le movie fetch garisakcha yesle signal pathaucha homepage.qml ko connection ma bhayeko function ma
     void genreResultsReady(QVariantList movies);
 
     void errorOccurred(const QString &message);
