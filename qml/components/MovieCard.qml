@@ -42,8 +42,13 @@ Rectangle {
 
             // Fade in when loaded
             opacity: 0
-            onStatusChanged: {
-                if (status === Image.Ready) fadeIn.start()
+            onStatusChanged:{
+                if (status === Image.Ready){
+                    fadeIn.start()
+                }
+                else if(status == Image.Error){                             //Poster load bhayena bhane yo print hunxa
+                    console.error("[MovieCard] Poster failed to load:", movieCard.movie_title, "->", movieCard.poster_url)
+                }
             }
             NumberAnimation on opacity {
                 id: fadeIn
