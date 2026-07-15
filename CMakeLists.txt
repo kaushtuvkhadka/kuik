@@ -19,6 +19,8 @@ qt_add_executable(KUik
     src/constants.h
     src/accountmanager.h
     src/accountmanager.cpp
+    src/watchhistorymanager.h
+    src/watchhistorymanager.cpp
 )
 
 qt_add_qml_module(KUik
@@ -28,6 +30,7 @@ qt_add_qml_module(KUik
         qml/Main.qml
         qml/pages/Signup.qml
         qml/pages/Login.qml
+        qml/pages/WatchHistory.qml
         qml/pages/HomePage.qml
         qml/pages/DetailPage.qml
         qml/pages/PlayerPage.qml

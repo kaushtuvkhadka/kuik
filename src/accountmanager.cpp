@@ -12,8 +12,9 @@
 // the full path to our accounts.json file, e.g.C:/Users/YourName/Documents/KUik/kuik-main/saved/accounts.json
 static QString accountsFilePath()
 {
-    // We save it next to the app inside a saved folder.
-    QString folder = QDir::currentPath() + "/saved";        //QDir::currentPath() : returns the folder the app is currently running from (its working directory).
+    // We save it inside the actual project folder (not wherever the .exe happens to run from),
+    // using PROJECT_ROOT_DIR — a path Qt fills in automatically at build time.
+    QString folder = QString(PROJECT_ROOT_DIR) + "/saved";
 
     // Make sure the folder actually exists, create it if not.
     QDir().mkpath(folder);      //QDir().mkpath(folder) : creates a folder (and any missing parent folders) if it doesn't already exist. Safe to call even if it already exists
@@ -64,8 +65,8 @@ bool AccountManager::signup(const QString &username, const QString &password)
         readFile.close();
     }
 
-    // We only allow 1-2 accounts total, as per the project scope
-    if (accounts.size() >= 2) {
+    // We allow up to 15 accounts total
+    if (accounts.size() >= 15) {
         qDebug() << "Signup blocked: account limit reached";
         return false;
     }
@@ -111,9 +112,20 @@ bool AccountManager::login(const QString &username, const QString &password)
         QJsonObject account = val.toObject();
         if (account["username"].toString() == username &&
             account["password"].toString() == password) {
+            loggedInUser = username; // Remember who's logged in
             return true; // Found a match
         }
     }
 
     return false; // If No match found
+}
+
+QString AccountManager::currentUser()
+{
+    return loggedInUser;
+}
+
+void AccountManager::logout()
+{
+    loggedInUser.clear();
 }

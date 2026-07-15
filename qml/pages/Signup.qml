@@ -146,9 +146,10 @@ Rectangle {
                         var success = accountManager.signup(usernameInput.text, passwordInput.text)
 
                         if (success) {
-                            // Move to the home page, replacing this page in the stack
-                            // so the user can't press "back" into signup again
-                            appStack.replace(null, homePageComponent)
+                            // Account created — but don't log them in automatically.
+                            // Send them to Login so they log in with their new credentials,
+                            // same as a normal website signup flow.
+                            appStack.replace(null, loginPageComponent)
                         } else {
                             signupPage.errorMsg = "Signup failed (account limit reached?)."
                         }
@@ -167,7 +168,10 @@ Rectangle {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        appStack.replace(null, Qt.resolvedUrl("Login.qml"))     // Switch to the Login page
+                        // Use the shared loginPageComponent (defined in Main.qml) instead of
+                        // loading Login.qml directly — this makes sure appStack gets set on
+                        // the new page properly, so it can navigate further without breaking.
+                        appStack.replace(null, loginPageComponent)
                     }
                 }
             }

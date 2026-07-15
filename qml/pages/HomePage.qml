@@ -130,7 +130,21 @@ Rectangle {
                 var p = c.createObject(null, { appStack: homePage.appStack, initialQuery: query })
                 homePage.appStack.push(p)
             }
-            onMenuClicked: { /* future settings */ }
+            onHistoryRequested: {
+                if (!homePage.appStack) return
+                var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/WatchHistory.qml")
+                var p = c.createObject(null, {
+                    appStack: homePage.appStack,
+                    username: accountManager.currentUser()
+                })
+                homePage.appStack.push(p)
+            }
+            onLogoutRequested: {
+                accountManager.logout()
+                // Send back to Login — reuses the shared component from Main.qml
+                // so appStack gets set correctly on the fresh Login page
+                homePage.appStack.replace(null, loginPageComponent)
+            }
         }
 
         // ── Loading state ──────────────────────────────────────────────

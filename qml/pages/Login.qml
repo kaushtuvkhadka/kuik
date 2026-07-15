@@ -164,7 +164,9 @@ Rectangle {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        appStack.replace(null, Qt.resolvedUrl("Signup.qml"))
+                        // Use the shared signupPageComponent (defined in Main.qml) so appStack
+                        // gets set correctly on the new page, keeping navigation fluid both ways.
+                        appStack.replace(null, signupPageComponent)
                     }
                 }
             }
