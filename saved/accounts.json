@@ -1,0 +1,9 @@
+{
+    "accounts": [
+        { "username": "aryan", "password": "aryan" },
+        { "username": "mandeep", "password": "mandeep" },
+        { "username": "saksham", "password": "saksham" },
+        { "username": "roshan", "password": "roshan" },
+        { "username": "kaushtuv", "password": "kaushtuv" }
+    ]
+}

@@ -26,4 +26,15 @@ public:
     // Checks if the given username/password match a saved account.
     // Returns true if login is correct, false if not.
     Q_INVOKABLE bool login(const QString &username, const QString &password);
+
+    // Returns the username of whoever is currently logged in.
+    // Empty string means nobody is logged in yet.
+    Q_INVOKABLE QString currentUser();
+
+    // Clears the logged-in user. Called when the user logs out.
+    Q_INVOKABLE void logout();
+
+    private:
+    // Remembers who's logged in during this app session (not saved to disk).
+    QString loggedInUser;
 };

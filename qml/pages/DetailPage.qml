@@ -80,6 +80,21 @@ Rectangle {
 
     function openPlayer() {
         if (!detailPage.appStack || video_url === "") return
+
+        // Record this movie in the logged-in user's watch history
+        var currentUser = accountManager.currentUser()
+        if (currentUser !== "") {
+            watchHistory.addToHistory(currentUser, {
+                title:       detailPage.movie_title,
+                year:        detailPage.movie_year,
+                genre:       detailPage.movie_genre,
+                rating:      detailPage.movie_rating,
+                poster_url:  detailPage.poster_url,
+                video_url:   detailPage.video_url,
+                identifier:  detailPage.movie_identifier
+            })
+        }
+
         var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/PlayerPage.qml")
         var p = c.createObject(null, {
             video_url:   detailPage.video_url,
@@ -123,7 +138,20 @@ Rectangle {
                 var p = c.createObject(null, { appStack: detailPage.appStack, initialQuery: query })
                 detailPage.appStack.push(p)
             }
-        }
+            onHistoryRequested: {
+                if (!detailPage.appStack) return
+                var c = Qt.createComponent("qrc:/qt/qml/KUik/qml/pages/WatchHistory.qml")
+                var p = c.createObject(null, {
+                    appStack: detailPage.appStack,
+                    username: accountManager.currentUser()
+                })
+                detailPage.appStack.push(p)
+                }
+                onLogoutRequested: {
+                    accountManager.logout()
+                    detailPage.appStack.replace(null, loginPageComponent)
+                }
+            }
 
         ScrollView {
             width: parent.width
