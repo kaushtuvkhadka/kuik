@@ -27,21 +27,25 @@ Item {
 
 
 
+    AudioOutput {
+        id: audio_output
+        volume: vol_slider.value / 100.0
+    }
+
     //Playback controls haru
     MediaPlayer {
         id: media_player
         source: playerPage.video_url
         videoOutput: video_output
-        audioOutput: AudioOutput {
-            volume: vol_slider.value / 100.
-        }
+        audioOutput: audio_output
 
         onPositionChanged: {
             if (!seek_bar.pressed)
                 seek_bar.value = media_player.position
         }
         onDurationChanged: {
-            seek_bar.to = media_player.duration
+            if (media_player.duration > 0)
+                seek_bar.to = media_player.duration
         }
         onPlaybackStateChanged: {
             hide_timer.restart()                                    //controls auto hide hune timer
@@ -71,14 +75,6 @@ Item {
         }
     }
 
-
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.LeftButton
-        onPositionChanged: { controls_overlay.opacity = 1; hide_timer.restart() }
-        onClicked:         { controls_overlay.opacity = 1; hide_timer.restart() }
-    }
 
 
     Rectangle {
@@ -173,22 +169,6 @@ Item {
                     }
                 }
             }
-
-
-            //Settings ma volume, bahira already xa so paxi remove
-
-            // Column {
-            //     width: parent.width
-            //     spacing: 8
-            //     Text { text: "Volume  " + Math.round(vol_slider.value) + "%"; color: "#aaaaaa"; font.pixelSize: 11 }
-
-            //     Slider {
-            //         id: settings_vol
-            //         width: parent.width
-            //         from: 0; to: 100; value: vol_slider.value
-            //         onValueChanged: vol_slider.value = value
-            //     }
-            // }
         }
     }
 
@@ -199,6 +179,15 @@ Item {
         opacity: 1
         Behavior on opacity { NumberAnimation { duration: 350 } }
 
+        // Background MouseArea — shows/hides controls on hover/click
+        // Declared FIRST inside overlay so sliders/buttons (declared later) sit on top and receive input
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton
+            onPositionChanged: { controls_overlay.opacity = 1; hide_timer.restart() }
+            onClicked:         { controls_overlay.opacity = 1; hide_timer.restart() }
+        }
 
         Rectangle {
             anchors.top: parent.top
@@ -259,6 +248,15 @@ Item {
                 GradientStop { position: 1.0; color: "#dd000000" }
             }
 
+            // Block mouse events from falling through to the background MouseArea
+            // Using propagateComposedEvents so sliders still work
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.NoButton   // Don't accept any clicks — let sliders/buttons handle them
+                onPositionChanged: { controls_overlay.opacity = 1; hide_timer.restart() }
+            }
+
             Column {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
@@ -283,9 +281,24 @@ Item {
                     CustomSlider {
                         id: seek_bar
                         Layout.fillWidth: true
-                        from: 0; to: 1; value: 0
+                        from: 0
+                        to: media_player.duration > 0 ? media_player.duration : 1
+                        value: 0
+
+                        function applySeek() {
+                            media_player.position = value
+                            if (typeof media_player.setPosition === "function") {
+                                media_player.setPosition(value)
+                            }
+                        }
+
                         onPressedChanged: {
-                            if (!pressed) media_player.position = value
+                            if (!pressed) {
+                                applySeek()
+                            }
+                        }
+                        onMoved: {
+                            applySeek()
                         }
                     }
 
@@ -321,20 +334,39 @@ Item {
 
                     //Vol button
                     Image {
+                        id: vol_icon
                         width: 22; height: 22
                         Layout.alignment: Qt.AlignVCenter
+                        property real lastVolume: 80
                         property string p: vol_slider.value === 0 
                                               ? "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
                                               : (vol_slider.value < 50 
                                                 ? "M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z" 
                                                 : "M3 9v6h4l5 5V4L8 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z")
                         source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ffffff' d='" + p + "'/></svg>"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (vol_slider.value > 0) {
+                                    vol_icon.lastVolume = vol_slider.value
+                                    vol_slider.value = 0
+                                } else {
+                                    vol_slider.value = vol_icon.lastVolume > 0 ? vol_icon.lastVolume : 80
+                                }
+                            }
+                        }
                     }
                     //vol slider
                     CustomSlider {
                         id: vol_slider
-                        width: 80; from: 0; to: 100; value: 80                      //80 ma initiate hunxa
+                        Layout.preferredWidth: 90
                         Layout.alignment: Qt.AlignVCenter
+                        from: 0; to: 100; value: 80
+                        onValueChanged: {
+                            audio_output.volume = value / 100.0
+                        }
                     }
 
 
@@ -344,12 +376,22 @@ Item {
                     //10s back
                     CtrlBtn {
                         btnIconPath: "M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.1 11h-.85v-3.26l-1.01.31v-.69l1.77-.63h.09V16zm4.28-1.76c0 .32-.03.6-.1.82-.07.23-.17.42-.29.57-.12.15-.27.26-.45.33-.18.07-.39.11-.64.11s-.46-.04-.64-.11-.33-.18-.45-.33-.22-.34-.29-.57-.1-.5-.1-.82v-1.67c0-.32.03-.6.1-.82.07-.22.17-.41.29-.56.12-.14.27-.25.45-.32.18-.07.39-.1.64-.1s.46.03.64.1c.18.07.33.18.45.32.12.15.22.34.29.56.07.22.1.5.1.82v1.67zm-1.42-1.84c-.09-.08-.2-.11-.34-.11-.13 0-.25.04-.33.11-.08.08-.13.19-.16.34-.03.14-.04.33-.04.57v1.89c0 .24.01.44.04.58.03.14.09.25.17.33.08.07.19.11.32.11.14 0 .25-.04.34-.11.08-.07.14-.19.17-.33.03-.14.04-.34.04-.58v-1.89c0-.24-.01-.43-.04-.57-.03-.14-.09-.25-.17-.34z"
-                        onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)
+                        onBtnClicked: {
+                            var target = Math.max(0, media_player.position - 10000)
+                            media_player.position = target
+                            if (typeof media_player.setPosition === "function") media_player.setPosition(target)
+                            seek_bar.value = target
+                        }
                     }
                     //10s aagadi
                     CtrlBtn {
                         btnIconPath: "M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2zm-6.28-2.24c-.09-.08-.2-.11-.34-.11-.13 0-.25.04-.33.11-.08.08-.13.19-.16.34-.03.14-.04.33-.04.57v1.89c0 .24.01.44.04.58.03.14.09.25.17.33.08.07.19.11.32.11.14 0 .25-.04.34-.11.08-.07.14-.19.17-.33.03-.14.04-.34.04-.58v-1.89c0-.24-.01-.43-.04-.57-.03-.14-.09-.25-.17-.34zm2.84.82c0 .32-.03.6-.1.82-.07.23-.17.42-.29.57-.12.15-.27.26-.45.33-.18.07-.39.11-.64.11s-.46-.04-.64-.11c-.18-.07-.33-.18-.45-.33-.12-.15-.22-.34-.29-.57-.07-.22-.1-.5-.1-.82v-1.67c0-.32.03-.6.1-.82.07-.22.17-.41.29-.56.12-.14.27-.25.45-.32.18-.07.39-.1.64-.1s.46.03.64.1c.18.07.33.18.45.32.12.15.22.34.29.56.07.22.1.5.1.82v1.67zm-3.32-3.83v-.69l1.77-.63h.09v4.58h-.85v-3.26l-1.01.3z"
-                        onBtnClicked: media_player.position = Math.min(media_player.duration, media_player.position + 10000)
+                        onBtnClicked: {
+                            var target = Math.min(media_player.duration, media_player.position + 10000)
+                            media_player.position = target
+                            if (typeof media_player.setPosition === "function") media_player.setPosition(target)
+                            seek_bar.value = target
+                        }
                     }
 
 
@@ -422,6 +464,9 @@ Item {
     //*+*+*+*+*+ Custom styled Slider to match the red brand theme natively **+*+*+*+*
     component CustomSlider: Slider {
         id: control
+        live: true
+        implicitHeight: 28
+        focusPolicy: Qt.StrongFocus
         background: Rectangle {
             x: control.leftPadding
             y: control.topPadding + control.availableHeight / 2 - height / 2

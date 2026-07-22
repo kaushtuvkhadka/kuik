@@ -90,7 +90,7 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
 //Http request garne, need to check
 ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
     net = new QNetworkAccessManager(this);
-    net->setTransferTimeout(20000);                                 //Server lai respond time cap, milisec
+    net->setTransferTimeout(20000);    //-------------------------------------------Server lai respond time cap, milisec
 }
 
 
@@ -242,7 +242,7 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
     if (reply->error() != QNetworkReply::NoError) {
         emit loadingChanged(false);
 
-                                                    //Error Message Print Haru
+                                            //-------------------------------------------Error Message Print Haru
         QString msg;
         if(reply->error() == QNetworkReply::TimeoutError){
             msg = "Server didnt respond. \n Check Internet!!";

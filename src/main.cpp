@@ -8,8 +8,44 @@
 //*+*+*+*+*+ Include TMDB API backend for real movie metadata **+*+*+*+*
 #include "tmdbapi.h"
 
+
+
+
+// void qtErrorRemove(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+//     //http2 error lai remove ani tesko satta print
+//     if (context.category && qstrcmp(context.category, "qt.network.http2") == 0)
+//         return;
+
+//     switch (type) {
+//     case QtDebugMsg:
+//         fprintf(stdout, "[INFO]  %s\n", qPrintable(msg));
+//         break;
+//     case QtInfoMsg:
+//         fprintf(stdout, "[INFO]  %s\n", qPrintable(msg));
+//         break;
+//     case QtWarningMsg:
+//         fprintf(stdout, "[WARN]  %s\n", qPrintable(msg));
+//         break;
+//     case QtCriticalMsg:
+//         fprintf(stdout, "[ERROR] %s\n", qPrintable(msg));
+//         break;
+//     case QtFatalMsg:
+//         fprintf(stdout, "[FATAL] %s\n", qPrintable(msg));
+//         abort();
+//     }
+// }
+
+
+
+
 int main(int argc, char *argv[])
 {
+    //qInstallMessageHandler(qtErrorRemove);    //default error remove lai call garya, mathi declare
+
+    //qputenv("QT_NETWORK_HTTP2_DISABLE", "1"); // poster fetch ko limit remove, 2 thiyo paila
+
+
+
     QGuiApplication app(argc, argv);
     app.setApplicationName("KUik");
     app.setApplicationVersion("1.0");
