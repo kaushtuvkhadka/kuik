@@ -10,8 +10,12 @@ Rectangle {
     property var appStack: null
 
     // ── Movie data — populated by archiveApi signals ───────────────────
-    property var recommendations: []
-    property var topPicks:        []
+    property var curatedMovies: []
+    property int curatedHalf: 15   // half of 30 rows
+
+    readonly property var recommendations: curatedMovies.slice(0, curatedHalf)
+    readonly property var topPicks:        curatedMovies.slice(curatedHalf)
+
     property bool isLoading:      true
     property string errorMsg:     ""
 
@@ -27,21 +31,31 @@ Rectangle {
     //if its true the spinner loads, if false the movies appear
     property bool isGenreLoading: false
 
-    // ── Connect to C++ backend ─────────────────────────────────────────
-    // These Connections blocks wire ArchiveAPI signals to QML handlers.
-    // archiveApi is registered as a context property in main.cpp.
-
     Connections {
         target: archiveApi
 
-        // curatedReady fires with the full list of resolved movies.
-        // We split them: first half → recommendations, second half → top picks.
         function onCuratedReady(movies) {
             isLoading = false
             errorMsg  = ""
-            var half = Math.ceil(movies.length / 2)
-            recommendations = movies.slice(0, half)
-            topPicks        = movies.slice(half)
+            curatedMovies = movies
+        }
+        function onCuratedMovieReady(movie) {
+            if (isLoading) {
+                isLoading = false
+                errorMsg  = ""
+            }
+            var arr = curatedMovies.slice()
+            arr.push(movie)
+            curatedMovies = arr
+        }
+
+        function onGenreMovieReady(movie) {
+            if (isGenreLoading) {
+                isGenreLoading = false
+            }
+            var arr = genreMovies.slice()
+            arr.push(movie)
+            genreMovies = arr
         }
         //*************************backend le movie archive bata paisake pachi 
         //genreloading false(meaning loading huna chodcha) and genremovie vanne 
@@ -74,9 +88,7 @@ Rectangle {
     function setPreloadedMovies(movies) {
         isLoading = false
         errorMsg  = ""
-        var half = Math.ceil(movies.length / 2)
-        recommendations = movies.slice(0, half)
-        topPicks        = movies.slice(half)
+        curatedMovies = movies
     }
 
     // Called by Main.qml only if NO data was preloaded yet —
@@ -232,6 +244,7 @@ Rectangle {
                         onClicked: {
                             errorMsg = ""
                             isLoading = true
+                            curatedMovies = []
                             archiveApi.fetchCurated()
                         }
                     }

@@ -43,6 +43,10 @@ signals:
 
     void downloadProgress(int percentage);
 
+    void curatedMovieReady(QVariantMap movie);
+    void searchMovieReady(QVariantMap movie);
+    void genreMovieReady(QVariantMap movie);
+
 private slots:
     void onSearchReply(QNetworkReply *reply, bool isCurated);
     //***************search query bata reply(metadata) aaisakepachi yo run huncha
@@ -73,4 +77,22 @@ private:
     static QString bestMp4(const QJsonArray &files, const QString &identifier);
 
     static bool Block(const QString &text);
+
+    struct ResolveState {
+        QVariantList pending;
+        QVariantList resolved;
+        int index = 0;
+    };
+
+    ResolveState curatedState;
+    ResolveState searchState;
+    ResolveState genreState;
+
+    int curatedGeneration = 0;
+    int searchGeneration = 0;
+    int genreGeneration = 0;
+
+    ResolveState& stateFor(RequestType type);
+    int& generationFor(RequestType type);
+    void fetchNextMovie(RequestType requestType, int generation);
 };

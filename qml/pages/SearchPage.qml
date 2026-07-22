@@ -23,6 +23,16 @@ Rectangle {
     Connections {
         target: archiveApi
 
+        function onSearchMovieReady(movie) {
+                if (isLoading) {
+                    isLoading = false
+                    errorMsg  = ""
+                }
+                var arr = results.slice()
+                arr.push(movie)
+                results = arr
+            }
+
         function onSearchResultsReady(movies) {
             isLoading = false
             errorMsg  = ""
@@ -35,7 +45,6 @@ Rectangle {
         }
 
         function onLoadingChanged(loading) {
-            // Only track loading if we initiated it
             if (loading && lastQuery !== "") isLoading = true
         }
     }

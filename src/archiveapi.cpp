@@ -431,64 +431,102 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
 
     return result;
 }
+ArchiveAPI::ResolveState& ArchiveAPI::stateFor(RequestType type) {
+    if (type == CuratedRequest) return curatedState;
+    if (type == SearchRequest) return searchState;
+    return genreState;
+}
 
+int& ArchiveAPI::generationFor(RequestType type) {
+    if (type == CuratedRequest) return curatedGeneration;
+    if (type == SearchRequest) return searchGeneration;
+    return genreGeneration;
+}
 
-
-//file find garxa ani play, best quality haru choose hunxa
 void ArchiveAPI::resolveVideoUrls(QVariantList partials, RequestType requestType) {
-    int total = partials.size();
-    pendingResolutions = total; //*******partials (metadata ko size)
-
-
-    auto resolved = std::make_shared<QVariantList>();//****list that will collect movies when tiniharuko url is found
-    auto pending  = std::make_shared<int>(total);//****** counter, jun start huncha at total no of movies and counts down to 0
-
-    for (const QVariant &v : partials) {//*****loop chalaucha for each movie to find its video file
-        QVariantMap movie = v.toMap();
-        QString id = movie["identifier"].toString(); //*** each movie ko aafnai identifier huncha,string ma convert garcha
-
-        QUrl url(QString("https://archive.org/metadata/%1").arg(id));//*****%1 ko thau ma aaba movie ko identifier jancha
-        QNetworkReply *reply = net->get(QNetworkRequest(url));
-
-        connect(reply, &QNetworkReply::finished, this,
-                [this, reply, movie, resolved, pending, requestType]() mutable { //lambda function
-                    reply->deleteLater();
-
-                    if (reply->error() == QNetworkReply::NoError) {
-                        QByteArray data = reply->readAll();
-                        QJsonDocument doc = QJsonDocument::fromJson(data);
-                        if (!doc.isNull()) {
-                            QJsonObject root  = doc.object();
-                            QJsonArray  files = root["files"].toArray();
-                            QString     id    = movie["identifier"].toString();
-                            QString     vurl  = bestMp4(files, id);
-                            if (!vurl.isEmpty()) {
-                                QVariantMap m = movie;
-                                m["video_url"] = vurl;
-                                resolved->append(m);
-                            }
-                        }
-                    }
-
-                    (*pending)--;
-                    if (*pending == 0) {
-                        emit loadingChanged(false);
-                        if (requestType == CuratedRequest) {
-                            emit curatedReady(*resolved);
-                        }
-                        else if (requestType == SearchRequest) {
-                            emit searchResultsReady(*resolved);
-                        }
-                        else if (requestType == GenreRequest) {
-                            //******10 ota movie lai matra liyeko
-                            QVariantList finalResults;
-                            for (int i = 0; i < resolved->size() && i < 10; ++i) {
-                                finalResults.append(resolved->at(i));
-                            }
-                            emit genreResultsReady(finalResults);
-                        }
-                    }
-                }
-                );
+    if (partials.isEmpty()) {
+        emit loadingChanged(false);
+        return;
     }
+
+    ResolveState &state = stateFor(requestType);
+    state.pending = partials;
+    state.resolved = QVariantList();
+    state.index = 0;
+
+    int &generation = generationFor(requestType);
+    generation++;
+    int myGeneration = generation;
+
+    fetchNextMovie(requestType, myGeneration);
+}
+
+void ArchiveAPI::fetchNextMovie(RequestType requestType, int generation) {
+    if (generation != generationFor(requestType))
+        return;
+
+    ResolveState &state = stateFor(requestType);
+
+    if (state.index >= state.pending.size()) {
+        emit loadingChanged(false);
+
+        if (requestType == CuratedRequest)
+            emit curatedReady(state.resolved);
+        else if (requestType == SearchRequest)
+            emit searchResultsReady(state.resolved);
+        else if (requestType == GenreRequest)
+            emit genreResultsReady(state.resolved);
+
+        return;
+    }
+
+    QVariantMap movie = state.pending[state.index].toMap();
+    QString id = movie["identifier"].toString();
+
+    QUrl url(QString("https://archive.org/metadata/%1").arg(id));
+    QNetworkReply *reply = net->get(QNetworkRequest(url));
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, movie, requestType, generation]() {
+        reply->deleteLater();
+
+        if (generation != generationFor(requestType))
+            return;
+
+        ResolveState &state = stateFor(requestType);
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+
+            if (!doc.isNull()) {
+                QJsonObject root = doc.object();
+                QJsonArray files = root["files"].toArray();
+                QString id = movie["identifier"].toString();
+                QString vurl = bestMp4(files, id);
+
+                if (!vurl.isEmpty()) {
+                    QVariantMap m = movie;
+                    m["video_url"] = vurl;
+                    state.resolved.append(m);
+
+                    if (requestType == CuratedRequest)
+                        emit curatedMovieReady(m);
+                    else if (requestType == SearchRequest)
+                        emit searchMovieReady(m);
+                    else if (requestType == GenreRequest)
+                        emit genreMovieReady(m);
+                }
+            }
+        }
+
+        state.index++;
+
+        if (requestType == GenreRequest && state.resolved.size() >= 10) {
+            emit loadingChanged(false);
+            emit genreResultsReady(state.resolved);
+            return;
+        }
+
+        fetchNextMovie(requestType, generation);
+    });
 }
