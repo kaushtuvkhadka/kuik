@@ -14,13 +14,22 @@ Rectangle {
     property string movie_title:       ""
     property string movie_year:        ""
     property string movie_genre:       ""
-    property string movie_rating:      ""
+    //*+*+*+*+*+ Removed movie_rating property — ratings now come from TMDB **+*+*+*+*
     property string movie_description: ""
     property string poster_url:        ""
     property string video_url:         ""
     property string movie_identifier:  ""
 
-
+    //*+*+*+*+*+ TMDB metadata properties — populated after searchMovie call **+*+*+*+*
+    property bool   tmdbLoading:  false
+    property bool   tmdbFound:    false
+    property double tmdbRating:   0.0
+    property string tmdbOverview: ""
+    property string tmdbBackdrop: ""
+    property string tmdbPoster:   ""
+    property string tmdbReleaseDate: ""
+    property int    tmdbVoteCount: 0
+    property string tmdbLanguage: ""
 
     // Similar movies ko lagi
     property var    similar_movies:    []
@@ -65,6 +74,31 @@ Rectangle {
         }
     }
 
+    //*+*+*+*+*+ TMDB connection — listens for tmdbApi.tmdbResultReady signal **+*+*+*+*
+    Connections {
+        target: tmdbApi
+
+        //*+*+*+*+*+ When TMDB result arrives, update the tmdb properties **+*+*+*+*
+        function onTmdbResultReady(result) {
+            //*+*+*+*+*+ Only accept if the result matches our current movie title **+*+*+*+*
+            if (result.title !== detailPage.movie_title) return
+
+            detailPage.tmdbLoading = false
+            if (result.found) {
+                detailPage.tmdbFound    = true
+                detailPage.tmdbRating   = result.rating
+                detailPage.tmdbOverview = result.overview
+                detailPage.tmdbBackdrop = result.backdrop_path
+                detailPage.tmdbPoster   = result.poster_path
+                detailPage.tmdbReleaseDate = result.release_date
+                detailPage.tmdbVoteCount = result.vote_count
+                detailPage.tmdbLanguage = result.language
+            } else {
+                detailPage.tmdbFound = false
+            }
+        }
+    }
+
 
     //similar movie fetch garne func, initiate garne
     function fetchSimilar() {
@@ -88,7 +122,7 @@ Rectangle {
                 title:       detailPage.movie_title,
                 year:        detailPage.movie_year,
                 genre:       detailPage.movie_genre,
-                rating:      detailPage.movie_rating,
+                //*+*+*+*+*+ Removed rating from history save — no more fake rating **+*+*+*+*
                 poster_url:  detailPage.poster_url,
                 video_url:   detailPage.video_url,
                 identifier:  detailPage.movie_identifier
@@ -111,7 +145,7 @@ Rectangle {
             movie_title:       movie.title       || "",
             movie_year:        movie.year        || "",
             movie_genre:       movie.genre       || "",
-            movie_rating:      movie.rating      || "0",
+            //*+*+*+*+*+ Removed movie_rating — ratings now fetched from TMDB on DetailPage **+*+*+*+*
             movie_description: movie.description || "",
             poster_url:        movie.poster_url  || "",
             video_url:         movie.video_url   || "",
@@ -123,6 +157,9 @@ Rectangle {
 
     Component.onCompleted: {
         fetchSimilar()
+        //*+*+*+*+*+ Trigger TMDB search as soon as DetailPage loads — passes title, year, and identifier **+*+*+*+*
+        detailPage.tmdbLoading = true
+        tmdbApi.searchMovie(detailPage.movie_title, detailPage.movie_year, detailPage.movie_identifier)
     }
 
     Column {
@@ -172,10 +209,11 @@ Rectangle {
 
                     Image {
                         anchors.fill: parent
-                        source: detailPage.poster_url           //url aauxa ani poster fetch
+                        //*+*+*+*+*+ Use TMDB backdrop if available, fallback to archive poster **+*+*+*+*
+                        source: detailPage.tmdbBackdrop !== "" ? detailPage.tmdbBackdrop : detailPage.poster_url
                         fillMode: Image.PreserveAspectCrop
-                        opacity: 0.5
-                        visible: detailPage.poster_url !== ""
+                        opacity: 0.4
+                        visible: source !== ""
                     }
 
                     // Gradient overlay — bottom fade
@@ -253,7 +291,20 @@ Rectangle {
                                 Text {
                                     id: yearText
                                     anchors.centerIn: parent
-                                    text: detailPage.movie_year !== "" ? detailPage.movie_year : "Unknown year"
+                                    //*+*+*+*+*+ Prefer TMDB release year, fallback to archive year **+*+*+*+*
+                                    text: detailPage.tmdbReleaseDate !== "" ? detailPage.tmdbReleaseDate.substring(0, 4) : (detailPage.movie_year !== "" ? detailPage.movie_year : "Unknown year")
+                                    color: "#dddddd"; font.pixelSize: 11
+                                }
+                            }
+                            //*+*+*+*+*+ Language Badge **+*+*+*+*
+                            Rectangle {
+                                visible: detailPage.tmdbLanguage !== ""
+                                width: langText.width + 16; height: 22; radius: 4
+                                color: "#33ffffff"; border.color: "#55ffffff"; border.width: 1
+                                Text {
+                                    id: langText
+                                    anchors.centerIn: parent
+                                    text: detailPage.tmdbLanguage
                                     color: "#dddddd"; font.pixelSize: 11
                                 }
                             }
@@ -267,17 +318,7 @@ Rectangle {
                                     color: "#ffaaaa"; font.pixelSize: 11
                                 }
                             }
-                            Rectangle {
-                                width: ratingText.width + 16; height: 22; radius: 4
-                                color: "#33ffcc00"; border.color: "#55ffcc00"; border.width: 1
-                                visible: detailPage.movie_rating !== "" && detailPage.movie_rating !== "0"
-                                Text {
-                                    id: ratingText
-                                    anchors.centerIn: parent
-                                    text: "★ " + detailPage.movie_rating + "/10"
-                                    color: "#ffdd44"; font.pixelSize: 11
-                                }
-                            }
+                            //*+*+*+*+*+ Removed old fake rating badge — ratings now in TMDB mini-tab below **+*+*+*+*
                         }
                     }
 
@@ -345,6 +386,102 @@ Rectangle {
                     }
                 }
 
+                //*+*+*+*+*+ TMDB mini-tab section — redesigned to look sleek and native **+*+*+*+*
+                Rectangle {
+                    width: parent.width - 72
+                    x: 36
+                    radius: 12
+                    color: "#1a1a1a"
+                    height: tmdbContent.height + 40
+
+                    Column {
+                        id: tmdbContent
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 20
+                        spacing: 16
+
+                        //*+*+*+*+*+ Loading state **+*+*+*+*
+                        Row {
+                            spacing: 8
+                            visible: detailPage.tmdbLoading
+                            Text {
+                                text: "Loading TMDB data..."
+                                color: "#777777"
+                                font.pixelSize: 13
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Repeater {
+                                model: 3
+                                Rectangle {
+                                    width: 6; height: 6; radius: 3
+                                    color: "#777777"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    SequentialAnimation on opacity {
+                                        loops: Animation.Infinite
+                                        running: detailPage.tmdbLoading
+                                        PauseAnimation { duration: index * 150 }
+                                        NumberAnimation { to: 1; duration: 200 }
+                                        NumberAnimation { to: 0.3; duration: 200 }
+                                    }
+                                }
+                            }
+                        }
+
+                        //*+*+*+*+*+ Found state — shows TMDB rating and overview **+*+*+*+*
+                        Column {
+                            visible: !detailPage.tmdbLoading && detailPage.tmdbFound
+                            spacing: 12
+                            width: parent.width
+
+                            Row {
+                                spacing: 12
+
+                                //*+*+*+*+*+ TMDB Logo/Text **+*+*+*+*
+                                Text {
+                                    text: "TMDB"
+                                    color: "#90cea1"
+                                    font.pixelSize: 15
+                                    font.bold: true
+                                    font.letterSpacing: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                //*+*+*+*+*+ Rating with vote count **+*+*+*+*
+                                Text {
+                                    text: "★ " + detailPage.tmdbRating.toFixed(1) + " / 10"
+                                    color: "#ffffff"
+                                    font.pixelSize: 15
+                                    font.bold: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                Text {
+                                    text: "(" + detailPage.tmdbVoteCount + " votes)"
+                                    color: "#888888"
+                                    font.pixelSize: 13
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            //*+*+*+*+*+ TMDB overview/plot summary **+*+*+*+*
+                            Text {
+                                visible: detailPage.tmdbOverview !== ""
+                                text: detailPage.tmdbOverview
+                                color: "#bbbbbb"
+                                font.pixelSize: 14
+                                wrapMode: Text.WordWrap
+                                width: parent.width
+                                lineHeight: 1.6
+                            }
+                        }
+                    }
+                }
+
+                //*+*+*+*+*+ Spacer between TMDB section and Similar Movies **+*+*+*+*
+                Item { width: 1; height: 20 }
+
                 //Similar movies ko lagi ui
                 Column {
                     width: parent.width
@@ -394,7 +531,7 @@ Rectangle {
                                     movie_title:  modelData.title   || ""
                                     movie_year:   modelData.year    || ""
                                     movie_genre:  modelData.genre   || ""
-                                    movie_rating: parseFloat(modelData.rating) || 0
+                                    //*+*+*+*+*+ Removed movie_rating — no longer passed to MovieCard **+*+*+*+*
                                     poster_url:   modelData.poster_url || ""
                                     onCardClicked: detailPage.openDetail(modelData)
                                 }

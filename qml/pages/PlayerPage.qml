@@ -219,7 +219,12 @@ Item {
                     width: 32; height: 32; radius: 16
                     color: back_ma.containsMouse ? "#44ffffff" : "transparent"                  //Highliht hunxa mouse hover garda
                     Behavior on color { ColorAnimation { duration: 150 } }
-                    Text { anchors.centerIn: parent; text: "◀"; color: "#fff"; font.pixelSize: 14 }
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 18; height: 18
+                        source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ffffff' d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'/></svg>"
+                    }
 
 
                     MouseArea {
@@ -275,7 +280,7 @@ Item {
                     }
 
                     //Time jummp garxa, bar ma click garyo bhane skip to there
-                    Slider {
+                    CustomSlider {
                         id: seek_bar
                         Layout.fillWidth: true
                         from: 0; to: 1; value: 0
@@ -299,7 +304,9 @@ Item {
 
                     //Buttons haru
                     CtrlBtn {
-                        btnIcon: media_player.playbackState === MediaPlayer.PlayingState ? "■" : "▶"
+                        btnIconPath: media_player.playbackState === MediaPlayer.PlayingState 
+                                     ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" // Pause
+                                     : "M8 5v14l11-7z"                   // Play
 
                         onBtnClicked: {
                             if (media_player.playbackState === MediaPlayer.PlayingState)
@@ -313,14 +320,18 @@ Item {
 
 
                     //Vol button
-                    Text {
-                        text: vol_slider.value === 0 ? "🔇" : vol_slider.value < 50 ? "🔉" : "🔊"
-                        color: "#ffffff";
-                        font.pixelSize: 15;
-                        Layout.alignment: Qt.AlignVCenter;
+                    Image {
+                        width: 22; height: 22
+                        Layout.alignment: Qt.AlignVCenter
+                        property string p: vol_slider.value === 0 
+                                              ? "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
+                                              : (vol_slider.value < 50 
+                                                ? "M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z" 
+                                                : "M3 9v6h4l5 5V4L8 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z")
+                        source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ffffff' d='" + p + "'/></svg>"
                     }
                     //vol slider
-                    Slider {
+                    CustomSlider {
                         id: vol_slider
                         width: 80; from: 0; to: 100; value: 80                      //80 ma initiate hunxa
                         Layout.alignment: Qt.AlignVCenter
@@ -332,12 +343,12 @@ Item {
 
                     //10s back
                     CtrlBtn {
-                        btnIcon: "↺"                        //Math le media cap rakhxa
+                        btnIconPath: "M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.1 11h-.85v-3.26l-1.01.31v-.69l1.77-.63h.09V16zm4.28-1.76c0 .32-.03.6-.1.82-.07.23-.17.42-.29.57-.12.15-.27.26-.45.33-.18.07-.39.11-.64.11s-.46-.04-.64-.11-.33-.18-.45-.33-.22-.34-.29-.57-.1-.5-.1-.82v-1.67c0-.32.03-.6.1-.82.07-.22.17-.41.29-.56.12-.14.27-.25.45-.32.18-.07.39-.1.64-.1s.46.03.64.1c.18.07.33.18.45.32.12.15.22.34.29.56.07.22.1.5.1.82v1.67zm-1.42-1.84c-.09-.08-.2-.11-.34-.11-.13 0-.25.04-.33.11-.08.08-.13.19-.16.34-.03.14-.04.33-.04.57v1.89c0 .24.01.44.04.58.03.14.09.25.17.33.08.07.19.11.32.11.14 0 .25-.04.34-.11.08-.07.14-.19.17-.33.03-.14.04-.34.04-.58v-1.89c0-.24-.01-.43-.04-.57-.03-.14-.09-.25-.17-.34z"
                         onBtnClicked: media_player.position = Math.max(0, media_player.position - 10000)
                     }
                     //10s aagadi
                     CtrlBtn {
-                        btnIcon: "↻"
+                        btnIconPath: "M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2zm-6.28-2.24c-.09-.08-.2-.11-.34-.11-.13 0-.25.04-.33.11-.08.08-.13.19-.16.34-.03.14-.04.33-.04.57v1.89c0 .24.01.44.04.58.03.14.09.25.17.33.08.07.19.11.32.11.14 0 .25-.04.34-.11.08-.07.14-.19.17-.33.03-.14.04-.34.04-.58v-1.89c0-.24-.01-.43-.04-.57-.03-.14-.09-.25-.17-.34zm2.84.82c0 .32-.03.6-.1.82-.07.23-.17.42-.29.57-.12.15-.27.26-.45.33-.18.07-.39.11-.64.11s-.46-.04-.64-.11c-.18-.07-.33-.18-.45-.33-.12-.15-.22-.34-.29-.57-.07-.22-.1-.5-.1-.82v-1.67c0-.32.03-.6.1-.82.07-.22.17-.41.29-.56.12-.14.27-.25.45-.32.18-.07.39-.1.64-.1s.46.03.64.1c.18.07.33.18.45.32.12.15.22.34.29.56.07.22.1.5.1.82v1.67zm-3.32-3.83v-.69l1.77-.63h.09v4.58h-.85v-3.26l-1.01.3z"
                         onBtnClicked: media_player.position = Math.min(media_player.duration, media_player.position + 10000)
                     }
 
@@ -351,14 +362,14 @@ Item {
 
                     //settings
                     CtrlBtn {
-                        btnIcon: "☰"
+                        btnIconPath: "M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
                         active: settingsOpen                                //true flase
                         onBtnClicked: settingsOpen = !settingsOpen
                     }
 
 
                     CtrlBtn {
-                        btnIcon: "🡻"
+                        btnIconPath: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" // Download
                         onBtnClicked: {
                             // Safely invokes the non-static download execution pipeline method inside your ArchiveAPI object model wrapper instance
                             archiveApi.startDownload(playerPage.video_url)
@@ -367,7 +378,7 @@ Item {
 
                     //fullscreen
                     CtrlBtn {
-                        btnIcon: "⛶"
+                        btnIconPath: "M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
                         onBtnClicked: {
                             var w = Window.window
                             w.visibility = w.visibility === Window.FullScreen
@@ -383,7 +394,7 @@ Item {
 
 
     component CtrlBtn: Rectangle {
-        property string btnIcon: ""
+        property string btnIconPath: ""
         property bool   active:  false                                  //button select xa ke nai
         signal btnClicked()
 
@@ -394,17 +405,47 @@ Item {
         Behavior on color { ColorAnimation { duration: 120 } }
         Layout.alignment: Qt.AlignVCenter
 
-        Text {
+        Image {
             anchors.centerIn: parent
-            text: parent.btnIcon
-            color: parent.active ? "#e50914" : "#ffffff"
-            font.pixelSize: 16
+            width: 20; height: 20
+            source: parent.btnIconPath !== "" ? "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='" + (parent.active ? "%23e50914" : "%23ffffff") + "' d='" + parent.btnIconPath + "'/></svg>" : ""
+            visible: parent.btnIconPath !== ""
         }
         MouseArea {
             id: _ma
             anchors.fill: parent; hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.btnClicked()
+        }
+    }
+
+    //*+*+*+*+*+ Custom styled Slider to match the red brand theme natively **+*+*+*+*
+    component CustomSlider: Slider {
+        id: control
+        background: Rectangle {
+            x: control.leftPadding
+            y: control.topPadding + control.availableHeight / 2 - height / 2
+            width: control.availableWidth
+            height: 4
+            radius: 2
+            color: "#44ffffff"
+
+            Rectangle {
+                width: control.visualPosition * parent.width
+                height: parent.height
+                color: "#e50914"
+                radius: 2
+            }
+        }
+        handle: Rectangle {
+            x: control.leftPadding + control.visualPosition * (control.availableWidth - width)
+            y: control.topPadding + control.availableHeight / 2 - height / 2
+            width: control.pressed ? 16 : 14
+            height: control.pressed ? 16 : 14
+            radius: width / 2
+            color: "#e50914"
+            Behavior on width { NumberAnimation { duration: 100 } }
+            Behavior on height { NumberAnimation { duration: 100 } }
         }
     }
 
