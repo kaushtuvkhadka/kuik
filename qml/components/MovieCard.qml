@@ -11,7 +11,7 @@ Rectangle {
     property string movie_title:  "Movie"
     property string movie_year:   "2024"
     property string movie_genre:  "Genre"
-    property real   movie_rating: 0.0
+    //*+*+*+*+*+ Removed movie_rating property — ratings now come from TMDB on DetailPage **+*+*+*+*
     property string poster_url:   ""
 
     signal cardClicked()
@@ -59,25 +59,7 @@ Rectangle {
             }
         }
 
-        // Rating badge top-right
-        Rectangle {
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.margins: 6
-            width: 38
-            height: 20
-            radius: 4
-            color: "#cc000000"
-            visible: movieCard.movie_rating > 0
-
-            Text {
-                anchors.centerIn: parent
-                text: "★ " + movieCard.movie_rating
-                color: "#ffcc00"
-                font.pixelSize: 10
-                font.bold: true
-            }
-        }
+        //*+*+*+*+*+ Removed rating badge — was showing fake constant rating, now handled by TMDB on DetailPage **+*+*+*+*
     }
 
     // Text info area

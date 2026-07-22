@@ -106,7 +106,7 @@ Rectangle {
             movie_title:       movie.title       || "",
             movie_year:        movie.year        || "",
             movie_genre:       movie.genre       || "",
-            movie_rating:      movie.rating      || "0",
+            //*+*+*+*+*+ Removed movie_rating — ratings now fetched from TMDB on DetailPage **+*+*+*+*
             movie_description: movie.description || "",
             poster_url:        movie.poster_url  || "",
             video_url:         movie.video_url   || "",
@@ -311,10 +311,10 @@ Rectangle {
                         }
 
                         Text {
+                            //*+*+*+*+*+ Removed rating from hero banner — no more fake ★ rating display **+*+*+*+*
                             text: recommendations.length > 0
                                   ? (recommendations[0].year + "  ·  " +
-                                     recommendations[0].genre + "  ·  ★ " +
-                                     recommendations[0].rating)
+                                     recommendations[0].genre)
                                   : ""
                             color: "#aaaaaa"
                             font.pixelSize: 14
@@ -407,7 +407,7 @@ Rectangle {
                                 movie_title:  modelData.title   || "" //===== if title else null 
                                 movie_year:   modelData.year    || ""
                                 movie_genre:  modelData.genre   || ""
-                                movie_rating: parseFloat(modelData.rating) || 0
+                                //*+*+*+*+*+ Removed movie_rating — no longer passed to MovieCard **+*+*+*+*
                                 poster_url:   modelData.poster_url || ""
                                 onCardClicked: homePage.openDetail(modelData)
                             }
@@ -616,7 +616,7 @@ Rectangle {
                                     movie_title:  modelData.title   || "" //===== if title else null 
                                     movie_year:   modelData.year    || ""
                                     movie_genre:  modelData.genre   || ""
-                                    movie_rating: parseFloat(modelData.rating) || 0
+                                    //*+*+*+*+*+ Removed movie_rating — no longer passed to MovieCard **+*+*+*+*
                                     poster_url:   modelData.poster_url || ""
                                     onCardClicked: homePage.openDetail(modelData)
                                 }
@@ -725,7 +725,7 @@ Rectangle {
                                 movie_title:  modelData.title   || "" //===== if title else null 
                                 movie_year:   modelData.year    || ""
                                 movie_genre:  modelData.genre   || ""
-                                movie_rating: parseFloat(modelData.rating) || 0
+                                //*+*+*+*+*+ Removed movie_rating — no longer passed to MovieCard **+*+*+*+*
                                 poster_url:   modelData.poster_url || ""
                                 onCardClicked: homePage.openDetail(modelData)
                             }

@@ -5,6 +5,8 @@
 #include "archiveapi.h"
 #include "accountmanager.h"
 #include "watchhistorymanager.h"
+//*+*+*+*+*+ Include TMDB API backend for real movie metadata **+*+*+*+*
+#include "tmdbapi.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +25,9 @@ int main(int argc, char *argv[])
     // Create the watch history backend, shared across HomePage/DetailPage/WatchHistory pages
     WatchHistoryManager watchHistory;
 
+    //*+*+*+*+*+ Create TMDB API backend for fetching real ratings & overviews **+*+*+*+*
+    TmdbAPI tmdbApi;
+
     QQmlApplicationEngine engine;
 
     // Register as a context property so QML can access it as "archiveApi"
@@ -36,6 +41,9 @@ int main(int argc, char *argv[])
     // Register as "watchHistory" so QML can call:
     // watchHistory.addToHistory(username, movie), watchHistory.getHistory(username)
     engine.rootContext()->setContextProperty("watchHistory", &watchHistory);
+
+    //*+*+*+*+*+ Register as "tmdbApi" so QML can call tmdbApi.searchMovie(title, year) **+*+*+*+*
+    engine.rootContext()->setContextProperty("tmdbApi", &tmdbApi);
 
     const QUrl url(QStringLiteral("qrc:/qt/qml/KUik/qml/Main.qml"));
 

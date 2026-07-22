@@ -27,7 +27,7 @@ Rectangle {
             movie_title:       movie.title       || "",
             movie_year:        movie.year        || "",
             movie_genre:       movie.genre       || "",
-            movie_rating:      movie.rating      || "0",
+            //*+*+*+*+*+ Removed movie_rating — ratings now fetched from TMDB on DetailPage **+*+*+*+*
             movie_description: movie.description || "",
             poster_url:        movie.poster_url  || "",
             video_url:         movie.video_url   || "",
@@ -138,7 +138,7 @@ Rectangle {
                         movie_title:  modelData.title   || ""
                         movie_year:   modelData.year    || ""
                         movie_genre:  modelData.genre   || ""
-                        movie_rating: parseFloat(modelData.rating) || 0
+                        //*+*+*+*+*+ Removed movie_rating — no longer passed to MovieCard **+*+*+*+*
                         poster_url:   modelData.poster_url || ""
                         onCardClicked: historyPage.openDetail(modelData)
                     }

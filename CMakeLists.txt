@@ -21,6 +21,8 @@ qt_add_executable(KUik
     src/accountmanager.cpp
     src/watchhistorymanager.h
     src/watchhistorymanager.cpp
+    src/tmdbapi.h
+    src/tmdbapi.cpp
 )
 
 qt_add_qml_module(KUik
@@ -41,6 +43,7 @@ qt_add_qml_module(KUik
         qml/components/VideoControls.qml
         qml/components/LoadingSpinner.qml
         SOURCES src/constants.h
+        SOURCES src/tmdbapi.h
 )
 
 target_link_libraries(KUik PRIVATE
