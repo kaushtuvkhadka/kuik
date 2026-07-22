@@ -22,8 +22,7 @@ QString ArchiveAPI::posterUrl(const QString &id) {
 
 
 QString ArchiveAPI::streamUrl(const QString &id, const QString &filename) {   //Direct vidoe file ko url create, .mp4 jasto
-    return QString("https://archive.org/download/%1/%2").arg(id, filename);
-                //Nwtroking include hunna, direct url xa bhane matra play hunxa
+    return QString("https://archive.org/download/%1/%2").arg(id, filename);     //Nwtroking include hunna, direct url xa bhane matra play hunxa
 }
 
 
@@ -84,14 +83,14 @@ QString ArchiveAPI::bestMp4(const QJsonArray &files, const QString &id) {
 
     if (chosen.isEmpty())
         return QString();
-    return streamUrl(id, chosen);       // actual streaming URL build garxa
+    return streamUrl(id, chosen);                           // actual streaming URL build garxa
 }
 
 
 //Http request garne, need to check
 ArchiveAPI::ArchiveAPI(QObject *parent) : QObject(parent) {
     net = new QNetworkAccessManager(this);
-    net->setTransferTimeout(20000);     //-----------------------------------Server lai respond time cap, milisec
+    net->setTransferTimeout(20000);    //-------------------------------------------Server lai respond time cap, milisec
 }
 
 
@@ -171,8 +170,7 @@ void ArchiveAPI::fetchCurated() {
 
     // Downloads according, movies haru lai fetch garxa, top 10/20 bhanya jasto
     q.addQueryItem("q",
-                   "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");
-                                                        //adult tag lai neglect garxa
+                   "collection:feature_films AND mediatype:movies AND -subject:\"adult\"");     //adult tag bhako file lai neglect garxa
     q.addQueryItem("fl[]", "identifier");
     q.addQueryItem("fl[]", "title");
     q.addQueryItem("fl[]", "year");
@@ -190,7 +188,7 @@ void ArchiveAPI::fetchCurated() {
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {                        //htp request
         onSearchReply(reply, true);
         qDebug() << "Top movies fetch";
-        qDebug() << reply ;
+        qDebug() << "--" << reply ;
     });
 }
 
@@ -244,7 +242,7 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
     if (reply->error() != QNetworkReply::NoError) {
         emit loadingChanged(false);
 
-                                                //------------------------------------------Error Message Print Haru
+                                            //-------------------------------------------Error Message Print Haru
         QString msg;
         if(reply->error() == QNetworkReply::TimeoutError){
             msg = "Server didnt respond. \n Check Internet!!";
@@ -289,8 +287,7 @@ void ArchiveAPI::onSearchReply(QNetworkReply *reply, bool isCurated) {
 
 
 
-//******qml ma archiveApi.fetchGenre("<genre>") call huncha upon cliking that genre button
-//it sends the genre here
+//******qml ma archiveApi.fetchGenre("<genre>") call huncha upon cliking that genre button, it sends the genre here
 void ArchiveAPI::fetchGenre(const QString &genre) {
     if (genre.trimmed().isEmpty())
         return;  //*****if empty stops execution
@@ -305,11 +302,9 @@ void ArchiveAPI::fetchGenre(const QString &genre) {
 
     //***** -subject: adult le chai adult content lai filter garcha
     QString qStr = QString("subject:(%1) AND mediatype:movies AND collection:feature_films AND -subject:\"adult\"")
-                       .arg(genre.trimmed().toLower());
-                        //********** (%1) ko thau ma chai genre lai rakhidincha (%1 = placeholder)
+                       .arg(genre.trimmed().toLower()); //********** (%1) ko thau ma chai genre lai rakhidincha (%1 = placeholder)
     q.addQueryItem("q",      qStr);
-    q.addQueryItem("fl[]",   "identifier");
-                        //***** fl = field list, server lai yo yo chai pathaunu vanera specify garcha
+    q.addQueryItem("fl[]",   "identifier");//***** fl = field list, yesle chai server lai yo yo chai pathaunu vanera specify garcha
     q.addQueryItem("fl[]",   "title");
     q.addQueryItem("fl[]",   "year");
     q.addQueryItem("fl[]",   "subject");
@@ -395,25 +390,24 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
 
 
         //string ne huna sakxa, array ne
-        QString descrip;
+        QString desc;
         QJsonValue dv = item["description"];
         if (dv.isArray())
-            descrip = dv.toArray().first().toString();
+            desc = dv.toArray().first().toString();
         else
-            descrip = dv.toString();
+            desc = dv.toString();
 
         // Description 300 character bhanda badhi xa bhane cut gardinxa
-        if (descrip.length() > 300)
-            descrip = descrip.left(300) + "...";
+        if (desc.length() > 300)
+            desc = desc.left(300) + "...";
 
 
 
         //Block/Ignore garxa if blocked word xa bhbane----------               ***** Print remove kaam bhayepaxi***********
-        if (Block(title) || Block(genre) || Block(descrip)) {
+        if (Block(title) || Block(genre) || Block(desc)) {
             static int i = 1;
-            qDebug() << "Block  " << i; // << "\n";
+            qDebug() << "Block  " << i << "\n";
             i++;
-            //qDebug() << "Movie: " << title << "\tGenre: " << genre << "\n";
             continue;
         }
 
@@ -423,7 +417,7 @@ QVariantList ArchiveAPI::parseSearchResponse(const QJsonDocument &doc) {
         m["title"]       = title;
         m["year"]        = item["year"].toString();
         m["genre"]       = genre;
-        m["description"] = descrip;
+        m["description"] = desc;
         m["poster_url"]  = posterUrl(id);
         m["video_url"]   = "";
 

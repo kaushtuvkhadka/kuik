@@ -10,6 +10,7 @@
 
 
 
+
 // void qtErrorRemove(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 //     //http2 error lai remove ani tesko satta print
 //     if (context.category && qstrcmp(context.category, "qt.network.http2") == 0)
@@ -41,7 +42,10 @@ int main(int argc, char *argv[])
 {
     //qInstallMessageHandler(qtErrorRemove);    //default error remove lai call garya, mathi declare
 
-    qputenv("QT_NETWORK_HTTP2_DISABLE", "1"); // poster fetch ko limit remove, 2 thiyo paila
+    //qputenv("QT_NETWORK_HTTP2_DISABLE", "1"); // poster fetch ko limit remove, 2 thiyo paila
+
+
+
     QGuiApplication app(argc, argv);
     app.setApplicationName("KUik");
     app.setApplicationVersion("1.0");

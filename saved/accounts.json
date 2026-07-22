@@ -1,9 +1,32 @@
 {
     "accounts": [
-        { "username": "aryan", "password": "aryan" },
-        { "username": "mandeep", "password": "mandeep" },
-        { "username": "saksham", "password": "saksham" },
-        { "username": "roshan", "password": "roshan" },
-        { "username": "kaushtuv", "password": "kaushtuv" }
+        {
+            "password": "aryan",
+            "username": "aryan"
+        },
+        {
+            "password": "mandeep",
+            "username": "mandeep"
+        },
+        {
+            "password": "saksham",
+            "username": "saksham"
+        },
+        {
+            "password": "roshan",
+            "username": "roshan"
+        },
+        {
+            "password": "kaushtuv",
+            "username": "kaushtuv"
+        },
+        {
+            "password": "admin",
+            "username": "admin"
+        },
+        {
+            "password": "S",
+            "username": "S"
+        }
     ]
 }

@@ -358,35 +358,10 @@ Rectangle {
                     }
                 }
 
-                //Description
-                Column {
-                    width: parent.width
-                    spacing: 12
-                    topPadding: 28
-                    bottomPadding: 24
-                    leftPadding: 36
-                    rightPadding: 36
+                //*+*+*+*+*+ Spacer before TMDB section **+*+*+*+*+
+                Item { width: 1; height: 28 }
 
-                    Text {
-                        text: "About"
-                        color: "#ffffff"
-                        font.pixelSize: 20
-                        font.bold: true
-                    }
-
-                    Text {
-                        text: detailPage.movie_description !== ""
-                              ? detailPage.movie_description
-                              : "No description available for this title."
-                        color: "#cccccc"
-                        font.pixelSize: 15
-                        wrapMode: Text.WordWrap
-                        width: detailPage.width - 72
-                        lineHeight: 1.6
-                    }
-                }
-
-                //*+*+*+*+*+ TMDB mini-tab section — redesigned to look sleek and native **+*+*+*+*
+                //*+*+*+*+*+ TMDB section — archive about section removed, displaying TMDB metadata only **+*+*+*+*
                 Rectangle {
                     width: parent.width - 72
                     x: 36
@@ -475,6 +450,14 @@ Rectangle {
                                 width: parent.width
                                 lineHeight: 1.6
                             }
+                        }
+
+                        //*+*+*+*+*+ Not Found state **+*+*+*+*
+                        Text {
+                            visible: !detailPage.tmdbLoading && !detailPage.tmdbFound
+                            text: "TMDB details not available for this title."
+                            color: "#888888"
+                            font.pixelSize: 14
                         }
                     }
                 }
