@@ -15,9 +15,25 @@
 ## Preview
 
 <div align="center">
-  <img src="figures/home_page.png" alt="Home Screen Preview" width="100%" />
+  <h4>Home Screen Preview</h4>
+  <img src="figure/home_page.png" alt="Home Screen Preview" width="100%" />
+  <br><br>
+<br />
+  <hr>
+  <h4>Search Page Preview</h4>
+   <img src="figure/search_page.png" alt="Search Page Preview" width="100%" />
+  <br><br>
+<br />
+   <hr>
+  <h4>Detail Page Preview</h4>
+   <img src="figure/detail_page.png" alt="Detail Page Preview" width="100%" />
+  <br><br>
+<br />
+  <hr>
+  <h4>Video Player Preview</h4>
+    <img src="figure/video_player.png" alt="Player Page Preview" width="100%" />
+   <hr>
 </div>
-
 <br />
 
 ## Features
@@ -84,8 +100,8 @@ The following dependencies are required to build the project from source:
 
 ## Documentation
 
-- **[System Architecture](figures/system_architecture.jpg)** : High-level separation of the QML Frontend, C++ Backend, and External APIs.
-- **[UML Use Cases](figures/use_case_diagram.jpg)** : Core interactions between Users, the Application, and External Services.
+- **[System Architecture](figure/system_architecture.jpg)** : High-level separation of the QML Frontend, C++ Backend, and External APIs.
+- **[UML Use Cases](figure/use_case_diagram.jpg)** : Core interactions between Users, the Application, and External Services.
 - **Project Report** : The comprehensive academic report detailing requirements, methodology, and results is available in the final release bundle.
 
 <br />
