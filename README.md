@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="figures/logo-100.png" alt="KUik Logo" width="100" />
-  <h1>KUik</h1>
+  <h1 style="font-family: 'Calibri', sans-serif; color: #E50914; font-weight: bold;">KUik</h1>
   <p><strong>A high-performance, native desktop application for streaming movies directly to your screen. Built natively with C++20, Qt 6.7+, and CMake.</strong></p>
   
   <p>
