@@ -1,8 +1,0 @@
-<RCC>
-  <qresource prefix="/qt/qml/KUik/">
-    <file alias="qml/qmldir">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/app/KUik/qml/qmldir</file>
-    <file alias="qml/pages/qmldir">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/app/KUik/qml/pages/qmldir</file>
-    <file alias="qml/components/qmldir">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/app/KUik/qml/components/qmldir</file>
-  </qresource>
-</RCC>
-
