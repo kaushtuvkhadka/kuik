@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/VideoControls.qml"
+                }
+            ],
+            "moduleId": "KUik(KUik)"
+        }
+    ]
+}

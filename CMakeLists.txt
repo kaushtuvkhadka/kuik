@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # Added Network for HTTP requests to Internet Archive API
-find_package(Qt6 6.7 REQUIRED COMPONENTS Core Gui Qml Quick Multimedia Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Multimedia Network)
 
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
@@ -56,4 +56,7 @@ target_link_libraries(KUik PRIVATE
 )
 target_compile_definitions(KUik PRIVATE
     PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}"
+)
+set_target_properties(KUik PROPERTIES
+    OUTPUT_NAME "kuikapp"
 )

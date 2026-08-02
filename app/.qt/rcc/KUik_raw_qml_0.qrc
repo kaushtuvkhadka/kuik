@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="/qt/qml/KUik/">
+    <file alias="qml/Main.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/Main.qml</file>
+    <file alias="qml/pages/Signup.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/Signup.qml</file>
+    <file alias="qml/pages/Login.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/Login.qml</file>
+    <file alias="qml/pages/WatchHistory.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/WatchHistory.qml</file>
+    <file alias="qml/pages/HomePage.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/HomePage.qml</file>
+    <file alias="qml/pages/DetailPage.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/DetailPage.qml</file>
+    <file alias="qml/pages/PlayerPage.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/PlayerPage.qml</file>
+    <file alias="qml/pages/SearchPage.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/SearchPage.qml</file>
+    <file alias="qml/components/NavBar.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/NavBar.qml</file>
+    <file alias="qml/components/MovieCard.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/MovieCard.qml</file>
+    <file alias="qml/components/SearchBar.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/SearchBar.qml</file>
+    <file alias="qml/components/VideoControls.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/VideoControls.qml</file>
+    <file alias="qml/components/LoadingSpinner.qml">C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/components/LoadingSpinner.qml</file>
+  </qresource>
+</RCC>
+

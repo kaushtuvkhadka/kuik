@@ -1,0 +1,287 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 31,
+                            "durationMicroseconds": 0,
+                            "functionName": "historyList",
+                            "line": 16,
+                            "message": "Cannot generate efficient code for storing an array in a non-sequence type"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 5,
+                            "durationMicroseconds": 0,
+                            "functionName": "openDetail",
+                            "line": 23,
+                            "message": "Functions without type annotations won't be compiled"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "onCompleted",
+                            "line": 18,
+                            "message": "Cannot access value for name watchHistory"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 41,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 46,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 31,
+                            "durationMicroseconds": 0,
+                            "functionName": "left",
+                            "line": 51,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 41,
+                            "durationMicroseconds": 0,
+                            "functionName": "verticalCenter",
+                            "line": 52,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 58,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 45,
+                            "durationMicroseconds": 0,
+                            "functionName": "verticalCenter",
+                            "line": 60,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 43,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 63,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 38,
+                            "durationMicroseconds": 0,
+                            "functionName": "cursorShape",
+                            "line": 73,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 36,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 74,
+                            "message": "Cannot generate efficient code for call to untyped JavaScript function"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 71,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 45,
+                            "durationMicroseconds": 0,
+                            "functionName": "verticalCenter",
+                            "line": 83,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 24,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 89,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 33,
+                            "durationMicroseconds": 0,
+                            "functionName": "bottom",
+                            "line": 88,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 97,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "height",
+                            "line": 98,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 22,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 99,
+                            "message": "Cannot access value for name historyList"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 35,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 102,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 47,
+                            "durationMicroseconds": 0,
+                            "functionName": "horizontalCenter",
+                            "line": 108,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 47,
+                            "durationMicroseconds": 0,
+                            "functionName": "horizontalCenter",
+                            "line": 114,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 121,
+                            "message": "Could not find property \"width\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "height",
+                            "line": 122,
+                            "message": "Could not find property \"height\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 22,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 123,
+                            "message": "Could not find property \"visible\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "contentWidth",
+                            "line": 124,
+                            "message": "Could not find property \"contentWidth\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 42,
+                            "durationMicroseconds": 0,
+                            "functionName": "policy",
+                            "line": 125,
+                            "message": "Could not find property \"policy\"."
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 24,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 128,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "model",
+                            "line": 136,
+                            "message": "Cannot access value for name historyList"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "movie_title",
+                            "line": 138,
+                            "message": "Cannot access value for name modelData"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "movie_year",
+                            "line": 139,
+                            "message": "Cannot access value for name modelData"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "movie_genre",
+                            "line": 140,
+                            "message": "Cannot access value for name modelData"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "poster_url",
+                            "line": 142,
+                            "message": "Cannot access value for name modelData"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 40,
+                            "durationMicroseconds": 0,
+                            "functionName": "onCardClicked",
+                            "line": 143,
+                            "message": "Cannot access value for name historyPage"
+                        }
+                    ],
+                    "filePath": "C:/Users/kaushtuv/Desktop/coding/qtprojects/kuik-main/qml/pages/WatchHistory.qml"
+                }
+            ],
+            "moduleId": "KUik(KUik)"
+        }
+    ]
+}
