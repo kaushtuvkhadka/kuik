@@ -33,11 +33,11 @@ namespace TmdbConstants {
 
 // ── API credentials ─────────────────────────────────────────────
 //*+*+*+*+*+ API key used as query param fallback **+*+*+*+*
-inline const QString kApiKey = QStringLiteral("1994d5bda908c696a7acf7ee0b49d0d7");
+inline const QString kApiKey = QStringLiteral("");//insert your TMDB API KEY HERE
 
 //*+*+*+*+*+ Bearer token for Authorization header (preferred auth method) **+*+*+*+*
 inline const QString kReadAccessToken = QStringLiteral(
-    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxOTk0ZDViZGE5MDhjNjk2YTdhY2Y3ZWUwYjQ5ZDBkNyIsIm5iZiI6MTc3OTQyMDk3Ni4yOTYsInN1YiI6IjZhMGZjZjMwYWZiZWU0MmE3NmRlMWIzMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3QtGDD0FpjXd2Gjut7Bin0Oix51ClwFSJG9cDO6OyF");
+    ""); //insert your TMDB API auth header in here
 
 // ── Base URL ─────────────────────────────────────────────────────
 inline const QString kBaseUrl = QStringLiteral("https://api.themoviedb.org/3");
